@@ -1,0 +1,53 @@
+# Slack app manifest for Pando.
+#
+# How to use this:
+#   1. Go to https://api.slack.com/apps and click "Create New App".
+#   2. Pick "From an app manifest", then choose your dev workspace.
+#   3. Paste the contents of this file (YAML).
+#   4. Slack creates the app. Click "Install to Workspace" to get a bot token.
+#   5. Replace REPLACE_WITH_YOUR_PUBLIC_URL below with your ngrok / Vercel URL
+#      *before* pasting (or edit the URLs in the app settings UI after).
+#
+# When the public URL changes (e.g. you restart ngrok with a new tunnel), update
+# the URLs in the Slack app config UI under "Slash Commands", "Interactivity &
+# Shortcuts", and "Event Subscriptions" — or re-import this manifest.
+
+display_information:
+  name: Pando
+  description: A quiet coaching pet for cross-functional collaboration.
+  background_color: "#3f0e40"
+
+features:
+  bot_user:
+    display_name: Pando
+    always_online: true
+
+  slash_commands:
+    - command: /pando-demo
+      description: Walk through the Pando demo flow in DMs.
+      url: REPLACE_WITH_YOUR_PUBLIC_URL/api/slack/commands
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - chat:write       # post messages as the bot
+      - commands         # accept slash commands
+      - im:history       # read DMs (future: ambient nudges)
+      - im:write         # open DMs with users
+      - users:read       # look up user info if needed
+
+settings:
+  event_subscriptions:
+    request_url: REPLACE_WITH_YOUR_PUBLIC_URL/api/slack/events
+    bot_events:
+      - app_home_opened   # future: greet users when they first open the DM
+      # - message.im      # uncomment when we want to listen to DMs
+
+  interactivity:
+    is_enabled: true
+    request_url: REPLACE_WITH_YOUR_PUBLIC_URL/api/slack/interactions
+
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

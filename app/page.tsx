@@ -1,65 +1,175 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useReducer, useState } from "react";
+import { SlackFrame } from "@/components/SlackFrame";
+import { Sidebar } from "@/components/Sidebar";
+import { IntroScene } from "@/components/IntroScene";
+import { AnalysisScene } from "@/components/AnalysisScene";
+import { IntentionsScene } from "@/components/IntentionsScene";
+import { HatchScene } from "@/components/HatchScene";
+import { CoachingScene } from "@/components/CoachingScene";
+import { ReflectionScene } from "@/components/ReflectionScene";
+import { EndScene } from "@/components/EndScene";
+import { PETS_BY_ID } from "@/content/pets";
+import { COACHING_MOMENTS } from "@/content/coachingMoments";
+import { pickSpeciesFromIntentions } from "@/lib/match";
+import { nextStage } from "@/lib/stages";
+import { clearFlow, INITIAL_FLOW, loadFlow, saveFlow } from "@/lib/storage";
+import type { FlowState, Stage } from "@/types";
+
+type Action =
+  | { type: "hydrate"; state: FlowState }
+  | { type: "advance" }
+  | { type: "submitIntentions"; ids: string[] }
+  | { type: "reset" };
+
+function reducer(state: FlowState, action: Action): FlowState {
+  switch (action.type) {
+    case "hydrate":
+      return action.state;
+
+    case "advance": {
+      const next = nextStage(state.stage);
+      return next ? { ...state, stage: next } : state;
+    }
+
+    case "submitIntentions": {
+      // UI gates this to be non-empty; defensive guard anyway.
+      if (action.ids.length === 0) return state;
+      const species = pickSpeciesFromIntentions(action.ids);
+      return {
+        ...state,
+        intentions: action.ids,
+        speciesId: species.id,
+        stage: "hatching",
+      };
+    }
+
+    case "reset":
+      return INITIAL_FLOW;
+  }
+}
+
+/** Map a stage to which sidebar item should appear "active." */
+function stageToActiveSidebar(stage: Stage): string {
+  switch (stage) {
+    case "coaching1":
+      return "mary";
+    case "coaching2":
+      return "marketing-launch";
+    default:
+      return "pando";
+  }
+}
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+  // Avoid SSR/CSR hydration mismatch: render with INITIAL_FLOW first,
+  // then dispatch a hydrate action after mount.
+  const [state, dispatch] = useReducer(reducer, INITIAL_FLOW);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const persisted = loadFlow();
+    if (persisted) dispatch({ type: "hydrate", state: persisted });
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) saveFlow(state);
+  }, [state, hydrated]);
+
+  const pet = state.speciesId ? PETS_BY_ID[state.speciesId] : null;
+  const activeId = stageToActiveSidebar(state.stage);
+
+  const sidebarItems: Parameters<typeof Sidebar>[0]["items"] = [
+    { id: "general", label: "general", kind: "channel" },
+    { id: "marketing-launch", label: "marketing-launch", kind: "channel" },
+    { id: "design", label: "design", kind: "channel" },
+    {
+      id: "pando",
+      label: "Pando",
+      kind: "dm",
+      avatar: { letter: "P", color: "#FFB347" },
+      isPando: true,
+    },
+    {
+      id: "mary",
+      label: "Mary Chen",
+      kind: "dm",
+      avatar: { letter: "M", color: "#7c3aed" },
+    },
+    {
+      id: "devon",
+      label: "Devon Park",
+      kind: "dm",
+      avatar: { letter: "D", color: "#0ea5e9" },
+    },
+  ];
+
+  function handleReset() {
+    clearFlow();
+    dispatch({ type: "reset" });
+  }
+
+  let main: React.ReactNode;
+  switch (state.stage) {
+    case "intro":
+      main = <IntroScene onBegin={() => dispatch({ type: "advance" })} />;
+      break;
+    case "analysis":
+      main = <AnalysisScene onDone={() => dispatch({ type: "advance" })} />;
+      break;
+    case "intentions":
+      main = (
+        <IntentionsScene
+          onSubmit={(ids) => dispatch({ type: "submitIntentions", ids })}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      );
+      break;
+    case "hatching":
+      main = pet ? (
+        <HatchScene pet={pet} onDone={() => dispatch({ type: "advance" })} />
+      ) : null;
+      break;
+    case "coaching1":
+      main = pet ? (
+        <CoachingScene
+          moment={COACHING_MOMENTS[0]}
+          pet={pet}
+          onSend={() => dispatch({ type: "advance" })}
+        />
+      ) : null;
+      break;
+    case "coaching2":
+      main = pet ? (
+        <CoachingScene
+          moment={COACHING_MOMENTS[1]}
+          pet={pet}
+          onSend={() => dispatch({ type: "advance" })}
+        />
+      ) : null;
+      break;
+    case "reflection":
+      main = pet ? (
+        <ReflectionScene pet={pet} onDone={() => dispatch({ type: "advance" })} />
+      ) : null;
+      break;
+    case "end":
+      main = pet ? <EndScene pet={pet} onReset={handleReset} /> : null;
+      break;
+  }
+
+  return (
+    <SlackFrame
+      sidebar={
+        <Sidebar
+          items={sidebarItems}
+          activeId={activeId}
+          onReset={handleReset}
+        />
+      }
+    >
+      {main}
+    </SlackFrame>
   );
 }

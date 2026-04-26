@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f8f6;
+  --foreground: #1d1c1d;
+  --slack-sidebar: #3f0e40;
+  --slack-sidebar-text: #ddd;
+  --slack-sidebar-active: #1164a3;
+  --slack-divider: #e5e5e4;
+  --slack-message-hover: #f8f8f8;
+  --pando-warm-bg: #fff8e8;
+  --pando-warm-edge: #f3e2b9;
 }
 
 @theme inline {
@@ -12,15 +19,59 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Pet idle float — gentle hover to make it feel alive without being busy. */
+@keyframes pando-pet-float-kf {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+.pando-pet-float {
+  animation: pando-pet-float-kf 3.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Egg wiggle — used pre-hatch. */
+@keyframes pando-egg-wiggle-kf {
+  0%, 100%   { transform: rotate(0deg); }
+  20%        { transform: rotate(-4deg); }
+  40%        { transform: rotate(4deg); }
+  60%        { transform: rotate(-3deg); }
+  80%        { transform: rotate(3deg); }
+}
+.pando-egg-wiggle {
+  animation: pando-egg-wiggle-kf 1.6s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+/* Egg crack — single shake then settle. */
+@keyframes pando-egg-crack-kf {
+  0%   { transform: scale(1) rotate(0deg); }
+  20%  { transform: scale(1.05) rotate(-6deg); }
+  40%  { transform: scale(1.05) rotate(6deg); }
+  60%  { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(0.9)  rotate(0deg); opacity: 0; }
+}
+.pando-egg-crack {
+  animation: pando-egg-crack-kf 1.4s ease-in forwards;
+}
+
+/* Generic fade-in. */
+@keyframes pando-fade-in-kf {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pando-fade-in {
+  animation: pando-fade-in-kf 0.4s ease-out both;
+}
+
+/* Pet card warm gradient — used as the "magical" visual treatment
+   inside the otherwise-utilitarian Slack frame. */
+.pando-warm {
+  background: radial-gradient(120% 120% at 30% 0%, #fff8e8 0%, #fbeacd 70%, #f3d9a5 100%);
+  border: 1px solid var(--pando-warm-edge);
 }
