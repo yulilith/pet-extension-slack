@@ -34,3 +34,21 @@ export function getSigningSecret(): string {
   }
   return secret;
 }
+
+/**
+ * Public base URL where this Next.js app is reachable from the internet.
+ * Slack image blocks need an absolute URL Slack can fetch — so we have to
+ * tell our blocks where we live (typically the ngrok tunnel URL in dev,
+ * or the *.vercel.app URL in production).
+ */
+export function getPublicBaseUrl(): string {
+  const url = process.env.PANDO_PUBLIC_URL;
+  if (!url) {
+    throw new Error(
+      "PANDO_PUBLIC_URL is not set. Set it to the ngrok URL (or your Vercel URL). See .env.local.example.",
+    );
+  }
+  // Trim trailing slash for predictable concatenation.
+  return url.replace(/\/+$/, "");
+}
+

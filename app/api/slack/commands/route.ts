@@ -1,24 +1,23 @@
 /**
  * Slash command webhook: POST /api/slack/commands
  *
- * Slack invokes this when a user types `/pando-demo` in any channel.
- * We ack with an ephemeral message immediately (Slack requires < 3s)
- * and kick off the flow asynchronously by posting the intro card to
- * the user's DM with the bot.
+ * Routes:
+ *   /pando-demo     → starts the demo flow in the user's Pando DM
+ *   /pando-channels → opens the channel picker modal so the user can choose
+ *                     which channels Pando should auto-join
+ *
+ * We ack within Slack's 3-second budget. Modal-opening commands have to
+ * call views.open *quickly* (the trigger_id expires in ~3s), so we do it
+ * inside `after()` which runs immediately after the response is sent.
  */
 
 import { after, NextResponse } from "next/server";
 import { getSigningSecret } from "@/lib/slack/client";
-import { startFlow } from "@/lib/slack/flow";
+import { openChannelPicker, startFlow } from "@/lib/slack/flow";
 import { verifySlackSignature } from "@/lib/slack/signing";
 
-// Force Node runtime — we use node:crypto for signing and the Slack SDK,
-// neither of which run on the Edge runtime.
 export const runtime = "nodejs";
 
-// Slash commands are sent as application/x-www-form-urlencoded.
-// Next.js doesn't auto-parse that for us, but we read it as text first
-// for signature verification anyway.
 export async function POST(req: Request): Promise<Response> {
   const rawBody = await req.text();
 
@@ -35,31 +34,49 @@ export async function POST(req: Request): Promise<Response> {
   const params = new URLSearchParams(rawBody);
   const command = params.get("command");
   const userId = params.get("user_id");
+  const triggerId = params.get("trigger_id") ?? undefined;
 
   if (!userId) {
     return NextResponse.json({ text: "Missing user_id." });
   }
 
-  if (command !== "/pando-demo") {
-    return NextResponse.json({
-      response_type: "ephemeral",
-      text: `Unknown command: ${command}`,
-    });
-  }
-
-  // Kick off the flow asynchronously via after() — work runs after the
-  // response is sent, with the platform keeping the function alive until
-  // it completes. Slack's 3-second ack budget is preserved.
-  after(async () => {
-    try {
-      await startFlow(userId);
-    } catch (err) {
-      console.error("[pando] startFlow failed:", err);
+  switch (command) {
+    case "/pando-demo": {
+      after(async () => {
+        try {
+          await startFlow(userId);
+        } catch (err) {
+          console.error("[pando] startFlow failed:", err);
+        }
+      });
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: "Starting your Pando session in DMs. Check the Pando bot.",
+      });
     }
-  });
 
-  return NextResponse.json({
-    response_type: "ephemeral",
-    text: "Starting your Pando session in DMs. Check the Pando bot.",
-  });
+    case "/pando-channels": {
+      if (!triggerId) {
+        return NextResponse.json({
+          response_type: "ephemeral",
+          text: "Couldn't open the picker — no trigger id from Slack.",
+        });
+      }
+      after(async () => {
+        try {
+          await openChannelPicker(userId, triggerId);
+        } catch (err) {
+          console.error("[pando] openChannelPicker failed:", err);
+        }
+      });
+      // No user-visible ephemeral — the modal opening *is* the response.
+      return new Response("", { status: 200 });
+    }
+
+    default:
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: `Unknown command: ${command}`,
+      });
+  }
 }

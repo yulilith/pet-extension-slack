@@ -1,23 +1,33 @@
 /**
  * Events API webhook: POST /api/slack/events
  *
- * Used for two things in this prototype:
- *   1. URL verification handshake when you wire up the Events API in your
- *      Slack app config (Slack POSTs `{ type: "url_verification", challenge }`
- *      and expects the challenge back).
- *   2. Future: real event subscriptions (message.im, app_home_opened, etc.)
- *      to do ambient stuff like greeting users when they first open the DM.
- *      Not implemented yet.
+ * Used for two things:
+ *   1. URL verification handshake when you first wire up the Events API.
+ *      Slack POSTs `{ type: "url_verification", challenge }` and expects the
+ *      challenge string echoed back.
+ *   2. `app_home_opened` events — fired when the user opens the Pando bot DM
+ *      or its Home tab. We use this to publish the latest App Home view so
+ *      the user always sees their pet's current state.
  */
 
+import { after } from "next/server";
 import { getSigningSecret } from "@/lib/slack/client";
+import { refreshHome } from "@/lib/slack/flow";
 import { verifySlackSignature } from "@/lib/slack/signing";
 
 export const runtime = "nodejs";
 
+type AppHomeOpened = {
+  type: "app_home_opened";
+  user: string;
+  channel?: string;
+  /** "home" or "messages" — Slack tells us which tab the user is viewing. */
+  tab?: "home" | "messages";
+};
+
 type EventPayload =
   | { type: "url_verification"; challenge: string }
-  | { type: "event_callback"; event: { type: string; user?: string; channel?: string } };
+  | { type: "event_callback"; event: AppHomeOpened | { type: string } };
 
 export async function POST(req: Request): Promise<Response> {
   const rawBody = await req.text();
@@ -39,15 +49,32 @@ export async function POST(req: Request): Promise<Response> {
     return new Response("Bad JSON", { status: 400 });
   }
 
+  // Slack URL verification handshake — happens once when you set the URL.
   if (payload.type === "url_verification") {
-    // Slack expects the challenge string echoed back in plain text.
     return new Response(payload.challenge, {
       status: 200,
       headers: { "content-type": "text/plain" },
     });
   }
 
-  // Future: dispatch on payload.event.type for app_home_opened,
-  // message.im, etc. For now we ack and move on so Slack doesn't retry.
+  if (payload.type === "event_callback") {
+    const event = payload.event;
+    if (event.type === "app_home_opened") {
+      const homeEvent = event as AppHomeOpened;
+      // Publish on the home tab. Slack also fires this for the messages tab
+      // but we only need to refresh once.
+      if (homeEvent.tab === "home" || !homeEvent.tab) {
+        after(async () => {
+          try {
+            await refreshHome(homeEvent.user);
+          } catch (err) {
+            console.error("[pando] refreshHome failed:", err);
+          }
+        });
+      }
+    }
+  }
+
+  // Always ack with 200 so Slack doesn't retry.
   return new Response("", { status: 200 });
 }

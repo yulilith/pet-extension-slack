@@ -1,8 +1,9 @@
 import type { PetSpecies } from "@/types";
+import Image from "next/image";
 
 type Props = {
   pet: PetSpecies;
-  /** Total rendered size in px (the sprite is 16x16 cells, so cellSize = size/16). */
+  /** Total rendered size in px. */
   size?: number;
   /** Optional className applied to the outer wrapper. */
   className?: string;
@@ -14,35 +15,23 @@ type Props = {
 };
 
 /**
- * Renders a 16x16 pixel-art pet from a sprite (2D index grid) and palette.
- * Pure CSS grid — no canvas, no SVG. Each cell is a colored <div>.
+ * Renders the pet PNG from /public/sprites.
+ * Kept as PixelPet so existing web-demo components switch over cleanly.
  */
 export function PixelPet({ pet, size = 192, className = "", animated = true }: Props) {
-  const cellSize = size / 16;
-
   return (
-    <div
-      role="img"
-      aria-label={`${pet.name}, ${pet.tagline}`}
+    <Image
+      src={`/sprites/${pet.spriteFile}`}
+      alt={`${pet.name}, ${pet.tagline}`}
+      width={size}
+      height={size}
       className={`inline-block ${animated ? "pando-pet-float" : ""} ${className}`}
       style={{
         width: size,
         height: size,
-        display: "grid",
-        gridTemplateColumns: `repeat(16, ${cellSize}px)`,
-        gridTemplateRows: `repeat(16, ${cellSize}px)`,
+        objectFit: "contain",
+        imageRendering: "pixelated",
       }}
-    >
-      {pet.sprite.map((row, r) =>
-        row.map((idx, c) => (
-          <div
-            key={`${r}-${c}`}
-            style={{
-              backgroundColor: idx === 0 ? "transparent" : pet.palette[idx],
-            }}
-          />
-        )),
-      )}
-    </div>
+    />
   );
 }

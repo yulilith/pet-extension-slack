@@ -1,17 +1,11 @@
 // Core type definitions for Pando.
 
-/**
- * 16x16 grid of palette indices.
- * Index 0 = transparent. Indices 1+ refer to entries in the pet's `palette`.
- */
-export type Sprite = number[][];
-
 export type SpeciesId = "lumio" | "mossle" | "wisp" | "sprout" | "ember";
 
 /**
  * The linear stages of the prototype flow.
  *
- * Iteration 2 — replaced the diagnostic questionnaire with two lighter
+ * Iteration 2: replaced the diagnostic questionnaire with two lighter
  * touchpoints: a simulated "Pando read your last 30 days" analysis, then
  * a multi-select intentions screen where the user picks what they want
  * help with. The pet hatches based on the user's primary (first-picked)
@@ -63,7 +57,7 @@ export type Observation = {
 export type FauxMessage = {
   /** Display name (e.g. "Mary Chen", "Pando", "you"). */
   author: string;
-  /** Visual avatar — letter for humans, "pet" to render the user's pet sprite. */
+  /** Visual avatar: letter for humans, "pet" to render the user's pet sprite. */
   avatar: { kind: "letter"; letter: string; color: string } | { kind: "pet" };
   /** Pretty time like "2:14 PM". */
   time: string;
@@ -88,7 +82,7 @@ export type CoachingMoment = {
   history: FauxMessage[];
   /** The message the user is drafting. Pre-filled in the composer. */
   draft: string;
-  /** Pet feedback bubble — keyed by species. 1–3 sentences each. */
+  /** Pet feedback bubble, keyed by species. 1-3 sentences each. */
   petFeedback: Record<SpeciesId, string>;
 };
 
@@ -103,6 +97,10 @@ export type Reflection = {
 export type PetSpecies = {
   id: SpeciesId;
   name: string;
+  /**
+   * Filename inside /public/sprites.
+   */
+  spriteFile: string;
   /** One-line vibe descriptor used in dev preview / hatch flavor. */
   tagline: string;
   /**
@@ -110,9 +108,32 @@ export type PetSpecies = {
    * Not shown to the user verbatim.
    */
   coachingFocus: string;
-  /** 1–3 sentences spoken on hatch. */
+  /** 1-3 sentences spoken on hatch. */
   intro: string;
-  /** Hex colors. Index 0 in sprite means transparent (palette[0] is unused). */
-  palette: string[];
-  sprite: Sprite;
+};
+
+export type NeedId = "hungry" | "lonely" | "wobbly" | "restless";
+
+export type PetNeed = {
+  id: NeedId;
+  /** Pet-facing need label shown in the floating balloon. */
+  label: string;
+  /** One short line from the pet before the user acts. */
+  petLine: string;
+  /** Button that translates the pet need into a communication act. */
+  actionLabel: string;
+  /** Short help text inside the empty composer. */
+  placeholder: string;
+  /** Pet advice while the user drafts the message. */
+  draftingLine: string;
+  /** Where the scripted Slack moment happens. */
+  channel:
+    | { kind: "dm"; name: string; avatarLetter: string; avatarColor: string }
+    | { kind: "channel"; name: string };
+  /** Short setup line shown above the composer. */
+  setup: string;
+  /** Existing Slack messages in this moment. */
+  history: FauxMessage[];
+  /** Pet response after the user sends. */
+  afterSendLine: string;
 };

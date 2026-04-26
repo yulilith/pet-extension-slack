@@ -2,29 +2,62 @@
  * Interactivity webhook: POST /api/slack/interactions
  *
  * Slack POSTs here when the user clicks a button, toggles a checkbox,
- * etc. Payload is form-encoded with a single `payload` field whose
- * value is JSON. We ack immediately with 200 and dispatch the action
- * asynchronously.
+ * submits a modal, etc. Payload is form-encoded with a single `payload`
+ * field whose value is JSON.
+ *
+ * Two payload types we care about:
+ *   - block_actions     → button click, checkbox toggle, etc. → handleAction
+ *   - view_submission   → modal Submit button → handleViewSubmission
+ *
+ * We ack immediately with 200 and dispatch the work asynchronously via
+ * Next's after() so we stay within Slack's 3-second budget.
  */
 
 import { after } from "next/server";
 import { getSigningSecret } from "@/lib/slack/client";
-import { handleAction } from "@/lib/slack/flow";
+import { handleAction, joinPickedChannels } from "@/lib/slack/flow";
+import {
+  PICKER_ACTION_ID,
+  PICKER_BLOCK_ID,
+  PICKER_CALLBACK_ID,
+} from "@/lib/slack/onboarding";
 import { verifySlackSignature } from "@/lib/slack/signing";
 
 export const runtime = "nodejs";
 
-// Minimal shape of the interaction payload we care about.
-type InteractionPayload = {
-  type: string;
+type BlockActionsPayload = {
+  type: "block_actions";
   user: { id: string };
-  actions?: Array<{
+  trigger_id?: string;
+  actions: Array<{
     action_id: string;
     type: string;
     value?: string;
     selected_options?: Array<{ value: string }>;
   }>;
 };
+
+type ViewSubmissionPayload = {
+  type: "view_submission";
+  user: { id: string };
+  view: {
+    callback_id: string;
+    state: {
+      values: Record<
+        string,
+        Record<
+          string,
+          {
+            type: string;
+            selected_options?: Array<{ value: string }>;
+          }
+        >
+      >;
+    };
+  };
+};
+
+type InteractionPayload = BlockActionsPayload | ViewSubmissionPayload | { type: string };
 
 export async function POST(req: Request): Promise<Response> {
   const rawBody = await req.text();
@@ -52,25 +85,51 @@ export async function POST(req: Request): Promise<Response> {
     return new Response("Bad payload JSON", { status: 400 });
   }
 
-  // For block_actions payloads, actions[] has the click info.
-  const action = payload.actions?.[0];
-  if (!action) {
-    // Some interaction types (view_submission etc.) don't use actions[].
-    // We don't handle those yet — ack and move on.
+  // ── view_submission: modal "Submit" button ──────────────────────────────
+  if (payload.type === "view_submission") {
+    const v = payload as ViewSubmissionPayload;
+    if (v.view.callback_id === PICKER_CALLBACK_ID) {
+      const selected =
+        v.view.state.values[PICKER_BLOCK_ID]?.[PICKER_ACTION_ID]
+          ?.selected_options ?? [];
+      const channelIds = selected.map((o) => o.value);
+      after(async () => {
+        try {
+          await joinPickedChannels(v.user.id, channelIds);
+        } catch (err) {
+          console.error("[pando] joinPickedChannels failed:", err);
+        }
+      });
+    }
+    // Empty 200 closes the modal. Slack also accepts a JSON
+    // response_action to keep it open / show errors / push another view.
     return new Response("", { status: 200 });
   }
 
-  // Checkboxes & multi-selects send selected_options; buttons send a value.
-  const selectedValues = action.selected_options?.map((o) => o.value);
+  // ── block_actions: button click, checkbox toggle, etc. ──────────────────
+  if (payload.type === "block_actions") {
+    const ba = payload as BlockActionsPayload;
+    const action = ba.actions[0];
+    if (!action) return new Response("", { status: 200 });
 
-  // Run after the response — we ack Slack within its 3-second budget.
-  after(async () => {
-    try {
-      await handleAction(payload.user.id, action.action_id, selectedValues);
-    } catch (err) {
-      console.error("[pando] handleAction failed:", err);
-    }
-  });
+    const selectedValues = action.selected_options?.map((o) => o.value);
 
+    after(async () => {
+      try {
+        await handleAction(
+          ba.user.id,
+          action.action_id,
+          selectedValues,
+          ba.trigger_id,
+        );
+      } catch (err) {
+        console.error("[pando] handleAction failed:", err);
+      }
+    });
+
+    return new Response("", { status: 200 });
+  }
+
+  // Anything else — just ack so Slack doesn't retry.
   return new Response("", { status: 200 });
 }

@@ -2,18 +2,18 @@ import { PETS } from "@/content/pets";
 import { PixelPet } from "@/components/PixelPet";
 
 /**
- * Dev-only preview page. Renders all 5 pets at multiple sizes
- * so the designer (and Claude) can eyeball sprite art.
+ * Dev-only preview page. Renders all 5 pet PNGs at multiple sizes
+ * so the designer can eyeball sprite art.
  *
- * Lives at /dev — not part of the user-facing flow.
+ * Lives at /dev, not part of the user-facing flow.
  */
 export default function DevPreview() {
   return (
     <main className="min-h-screen p-10 bg-stone-50">
-      <h1 className="text-3xl font-semibold mb-2">Pando — pet sprite preview</h1>
+      <h1 className="text-3xl font-semibold mb-2">Pando pet sprite preview</h1>
       <p className="text-sm text-stone-600 mb-10">
         All 5 species at three sizes. Edit{" "}
-        <code className="px-1 bg-stone-200 rounded">content/pets.ts</code> to iterate.
+        <code className="px-1 bg-stone-200 rounded">public/sprites/</code> to iterate.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

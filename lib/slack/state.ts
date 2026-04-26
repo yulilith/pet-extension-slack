@@ -22,6 +22,8 @@ export type SlackFlowState = {
   dmChannelId: string | null;
   /** Slack message ts of the active stage card, so we can update it in place. */
   activeMessageTs: string | null;
+  /** Slack view id of the open hatch modal, so we can update it after the pause. */
+  activeModalViewId: string | null;
 };
 
 const states = new Map<string, SlackFlowState>();
@@ -35,6 +37,7 @@ export function getState(userId: string): SlackFlowState {
       speciesId: null,
       dmChannelId: null,
       activeMessageTs: null,
+      activeModalViewId: null,
     };
     states.set(userId, s);
   }
@@ -55,6 +58,7 @@ export function resetState(userId: string): SlackFlowState {
     speciesId: null,
     dmChannelId: null,
     activeMessageTs: null,
+    activeModalViewId: null,
   };
   states.set(userId, fresh);
   return fresh;
