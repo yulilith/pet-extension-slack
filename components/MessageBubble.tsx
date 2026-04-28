@@ -11,7 +11,7 @@ type Props = {
  * Single Slack-style message: avatar + name/time header + body.
  *
  * If `message.fromPet` is set, applies the warm "magical" treatment to make
- * Pando's voice feel distinct from the surrounding chat.
+ * Synko's voice feel distinct from the surrounding chat.
  */
 export function MessageBubble({ message, pet }: Props) {
   const { avatar, author, time, body, fromPet } = message;
@@ -25,7 +25,7 @@ export function MessageBubble({ message, pet }: Props) {
       <div className="shrink-0 w-9 h-9 mt-0.5 flex items-start justify-center">
         {avatar.kind === "pet" && pet ? (
           <div
-            className="rounded-md overflow-hidden p-0.5 pando-warm"
+            className="rounded-md overflow-hidden p-0.5 synko-warm"
             style={{ width: 36, height: 36 }}
           >
             <PixelPet pet={pet} size={32} animated={false} />
@@ -51,7 +51,7 @@ export function MessageBubble({ message, pet }: Props) {
           }`}
         >
           {fromPet ? (
-            <div className="pando-warm rounded-xl px-3 py-2 inline-block max-w-prose">
+            <div className="synko-warm rounded-xl px-3 py-2 inline-block max-w-prose">
               {body}
             </div>
           ) : (

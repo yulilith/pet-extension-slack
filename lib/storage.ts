@@ -2,7 +2,7 @@ import type { FlowState } from "@/types";
 
 // v2: schema changed when we replaced the questionnaire with intentions.
 // Bumping the key avoids reading stale state from earlier prototype runs.
-const KEY = "pando.flow.v2";
+const KEY = "synko.flow.v2";
 
 /** Read flow state from localStorage. Returns null on first visit / parse error. */
 export function loadFlow(): FlowState | null {

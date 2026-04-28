@@ -42,10 +42,10 @@ export function getSigningSecret(): string {
  * or the *.vercel.app URL in production).
  */
 export function getPublicBaseUrl(): string {
-  const url = process.env.PANDO_PUBLIC_URL;
+  const url = process.env.SYNKO_PUBLIC_URL;
   if (!url) {
     throw new Error(
-      "PANDO_PUBLIC_URL is not set. Set it to the ngrok URL (or your Vercel URL). See .env.local.example.",
+      "SYNKO_PUBLIC_URL is not set. Set it to the ngrok URL (or your Vercel URL). See .env.local.example.",
     );
   }
   // Trim trailing slash for predictable concatenation.

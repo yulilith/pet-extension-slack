@@ -11,7 +11,7 @@ export function SlackFrame({ sidebar, children }: Props) {
   return (
     <div className="flex w-full h-screen overflow-hidden bg-white">
       {sidebar}
-      <main className="flex-1 flex flex-col min-w-0">{children}</main>
+      <main className="flex-1 flex flex-col min-w-0 min-h-0">{children}</main>
     </div>
   );
 }

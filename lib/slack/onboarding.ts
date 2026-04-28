@@ -1,9 +1,9 @@
 /**
- * Channel onboarding: helps the user pick which channels Pando should join.
+ * Channel onboarding: helps the user pick which channels Synko should join.
  *
  * Flow:
  *   1. List the user's public channels via users.conversations
- *   2. Filter out channels Pando is already in
+ *   2. Filter out channels Synko is already in
  *   3. Score each by name pattern + member count to guess "likely project channel"
  *   4. Render a modal with checkboxes, top 10 by score, with the likely-project
  *      ones pre-checked
@@ -14,7 +14,7 @@
  *   - `checkboxes` block elements are limited to 10 options. We hard-cap.
  *   - Bots can only auto-join *public* channels (channels:join scope).
  *     Private channels still need a manual /invite.
- *   - When the bot joins, every channel member sees a "Pando has joined"
+ *   - When the bot joins, every channel member sees a "Synko has joined"
  *     system message — there's no ghost mode.
  */
 
@@ -63,7 +63,7 @@ export type ChannelCandidate = {
   isLikelyProject: boolean;
 };
 
-/** Decide if a channel looks like one Pando should default to joining. */
+/** Decide if a channel looks like one Synko should default to joining. */
 function isLikelyProject(name: string, members: number): boolean {
   if (SKIP_PATTERNS.some((re) => re.test(name))) return false;
   if (PROJECT_PATTERNS.some((re) => re.test(name))) return true;
@@ -71,7 +71,7 @@ function isLikelyProject(name: string, members: number): boolean {
 }
 
 /**
- * Returns up to ~50 of the user's public channels that Pando is *not*
+ * Returns up to ~50 of the user's public channels that Synko is *not*
  * already a member of, scored and sorted (likely-project first).
  */
 export async function listJoinableChannels(
@@ -98,7 +98,7 @@ export async function listJoinableChannels(
   const channels = (res.channels ?? []) as SlackChannel[];
 
   const candidates: ChannelCandidate[] = channels
-    .filter((c) => c.is_member !== true) // skip ones Pando is already in
+    .filter((c) => c.is_member !== true) // skip ones Synko is already in
     .filter((c): c is SlackChannel & { id: string; name: string } => !!c.id && !!c.name)
     .map((c) => {
       const members = c.num_members ?? 0;
@@ -156,7 +156,7 @@ export function channelPickerView(candidates: ChannelCandidate[]): View {
           elements: [
             {
               type: "mrkdwn",
-              text: "For private channels, type `/invite @Pando` in each.",
+              text: "For private channels, type `/invite @Synko` in each.",
             },
           ],
         },
@@ -209,7 +209,7 @@ export function channelPickerView(candidates: ChannelCandidate[]): View {
         elements: [
           {
             type: "mrkdwn",
-            text: "For private channels, type `/invite @Pando` in each. I can't auto-join those.",
+            text: "For private channels, type `/invite @Synko` in each. I can't auto-join those.",
           },
         ],
       },

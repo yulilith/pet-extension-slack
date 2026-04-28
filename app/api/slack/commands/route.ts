@@ -2,9 +2,9 @@
  * Slash command webhook: POST /api/slack/commands
  *
  * Routes:
- *   /pando-demo     → starts the demo flow in the user's Pando DM
- *   /pando-channels → opens the channel picker modal so the user can choose
- *                     which channels Pando should auto-join
+ *   /synko-demo     → starts the demo flow in the user's Synko DM
+ *   /synko-channels → opens the channel picker modal so the user can choose
+ *                     which channels Synko should auto-join
  *
  * We ack within Slack's 3-second budget. Modal-opening commands have to
  * call views.open *quickly* (the trigger_id expires in ~3s), so we do it
@@ -41,21 +41,21 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   switch (command) {
-    case "/pando-demo": {
+    case "/synko-demo": {
       after(async () => {
         try {
           await startFlow(userId);
         } catch (err) {
-          console.error("[pando] startFlow failed:", err);
+          console.error("[synko] startFlow failed:", err);
         }
       });
       return NextResponse.json({
         response_type: "ephemeral",
-        text: "Starting your Pando session in DMs. Check the Pando bot.",
+        text: "Starting your Synko session in DMs. Check the Synko bot.",
       });
     }
 
-    case "/pando-channels": {
+    case "/synko-channels": {
       if (!triggerId) {
         return NextResponse.json({
           response_type: "ephemeral",
@@ -66,7 +66,7 @@ export async function POST(req: Request): Promise<Response> {
         try {
           await openChannelPicker(userId, triggerId);
         } catch (err) {
-          console.error("[pando] openChannelPicker failed:", err);
+          console.error("[synko] openChannelPicker failed:", err);
         }
       });
       // No user-visible ephemeral — the modal opening *is* the response.

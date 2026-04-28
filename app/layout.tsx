@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Lato } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +12,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Slack uses Slack-Lato (proprietary). Lato is the closest free fallback —
+// loading at 400/700/900 to cover regular body, semibold names, and the
+// extra-heavy treatment Slack uses for unread channels and headers.
+const lato = Lato({
+  variable: "--font-lato",
+  weight: ["400", "700", "900"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Pando",
-  description: "A Slack-embedded coaching pet for cross-functional collaboration.",
+  title: "Synko",
+  description: "A team communication pet for cross-departmental collaboration.",
 };
 
 export default function RootLayout({
@@ -25,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

@@ -40,7 +40,7 @@ export function AnalysisScene({ onDone }: Props) {
     <section className="flex-1 flex flex-col bg-white min-w-0">
       <header className="border-b border-stone-200 px-5 py-3">
         <div className="flex items-baseline gap-2">
-          <h2 className="font-semibold text-stone-900 text-base">Pando</h2>
+          <h2 className="font-semibold text-stone-900 text-base">Synko</h2>
           <span className="text-xs text-stone-500">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 align-middle animate-pulse" />
             reading…
@@ -57,7 +57,7 @@ export function AnalysisScene({ onDone }: Props) {
               <li
                 key={i}
                 className={`flex items-start gap-3 ${
-                  i < revealed ? "pando-fade-in" : "invisible"
+                  i < revealed ? "synko-fade-in" : "invisible"
                 }`}
               >
                 <span
@@ -76,7 +76,7 @@ export function AnalysisScene({ onDone }: Props) {
           </ul>
 
           {showClosing && (
-            <div className="pando-fade-in border-t border-stone-200 pt-6 text-center">
+            <div className="synko-fade-in border-t border-stone-200 pt-6 text-center">
               <p className="text-stone-700 mb-4">{COPY.analysis.closing}</p>
               <button
                 onClick={onDone}

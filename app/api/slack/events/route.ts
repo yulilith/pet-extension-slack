@@ -5,7 +5,7 @@
  *   1. URL verification handshake when you first wire up the Events API.
  *      Slack POSTs `{ type: "url_verification", challenge }` and expects the
  *      challenge string echoed back.
- *   2. `app_home_opened` events — fired when the user opens the Pando bot DM
+ *   2. `app_home_opened` events — fired when the user opens the Synko bot DM
  *      or its Home tab. We use this to publish the latest App Home view so
  *      the user always sees their pet's current state.
  */
@@ -68,7 +68,7 @@ export async function POST(req: Request): Promise<Response> {
           try {
             await refreshHome(homeEvent.user);
           } catch (err) {
-            console.error("[pando] refreshHome failed:", err);
+            console.error("[synko] refreshHome failed:", err);
           }
         });
       }

@@ -58,7 +58,7 @@ function stageToActiveSidebar(stage: Stage): string {
     case "coaching2":
       return "marketing-launch";
     default:
-      return "pando";
+      return "synko";
   }
 }
 
@@ -86,11 +86,11 @@ export default function Home() {
     { id: "marketing-launch", label: "marketing-launch", kind: "channel" },
     { id: "design", label: "design", kind: "channel" },
     {
-      id: "pando",
-      label: "Pando",
+      id: "synko",
+      label: "Synko",
       kind: "dm",
       avatar: { letter: "P", color: "#FFB347" },
-      isPando: true,
+      isPet: true,
     },
     {
       id: "mary",

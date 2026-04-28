@@ -1,4 +1,4 @@
-# Pando
+# Synko
 
 A coaching pet that lives in Slack. This repo contains both:
 
@@ -16,7 +16,7 @@ app/
   page.tsx                # web demo (visual prototype)
   dev/page.tsx            # sprite preview (designer reference)
   api/slack/
-    commands/route.ts     # /pando-demo slash command webhook
+    commands/route.ts     # /synko-demo slash command webhook
     interactions/route.ts # button / checkbox click webhook
     events/route.ts       # Slack Events API (URL verification + app_home_opened)
   api/sprites/
@@ -85,7 +85,7 @@ Then fill in:
 
 - `SLACK_SIGNING_SECRET` — from your Slack app's **Basic Information** → **App Credentials** → **Signing Secret**.
 - `SLACK_BOT_TOKEN` — leave blank for now. You'll get this in the next step.
-- `PANDO_PUBLIC_URL` — your ngrok URL (same one used in the manifest). Pet sprite images need this so Slack can fetch them.
+- `SYNKO_PUBLIC_URL` — your ngrok URL (same one used in the manifest). Pet sprite images need this so Slack can fetch them.
 
 ### 4. Install the app to your workspace
 
@@ -96,19 +96,19 @@ In the Slack app config: **Install App** → **Install to Workspace** → author
 In any Slack channel in your dev workspace, type:
 
 ```
-/pando-demo
+/synko-demo
 ```
 
-You'll see an ephemeral confirmation in the channel, and Pando will DM you with the intro card. Click through the buttons to walk the full flow.
+You'll see an ephemeral confirmation in the channel, and Synko will DM you with the intro card. Click through the buttons to walk the full flow.
 
 ### If your ngrok URL changes
 
-Every time you restart ngrok (on the free plan), the URL changes. When that happens, update **three places in your Slack app config** AND **`PANDO_PUBLIC_URL` in `.env.local`**:
+Every time you restart ngrok (on the free plan), the URL changes. When that happens, update **three places in your Slack app config** AND **`SYNKO_PUBLIC_URL` in `.env.local`**:
 
-- **Slash Commands** → `/pando-demo` request URL
+- **Slash Commands** → `/synko-demo` request URL
 - **Interactivity & Shortcuts** request URL
 - **Event Subscriptions** request URL
-- **`.env.local`** → `PANDO_PUBLIC_URL`, then restart `npm run dev`
+- **`.env.local`** → `SYNKO_PUBLIC_URL`, then restart `npm run dev`
 
 The signing secret and bot token don't change.
 
@@ -116,30 +116,30 @@ The signing secret and bot token don't change.
 
 A new feature added scopes and a slash command that didn't exist when the app was first installed. To pick them up on your existing app:
 
-1. <https://api.slack.com/apps> → your Pando app → **OAuth & Permissions** → **Bot Token Scopes** → add:
+1. <https://api.slack.com/apps> → your Synko app → **OAuth & Permissions** → **Bot Token Scopes** → add:
    - `channels:read`
    - `channels:join`
    - `channels:history`
    - `groups:read`
 2. Same page → **Reinstall to Workspace** (Slack will ask you to re-authorize for the new scopes). After reinstall, **copy the new Bot User OAuth Token** and update `SLACK_BOT_TOKEN` in `.env.local` if it changed. Restart `npm run dev`.
 3. **Slash Commands** in the left sidebar → click **Create New Command** → set:
-   - Command: `/pando-channels`
-   - Request URL: same as `/pando-demo` (your `<ngrok>/api/slack/commands`)
-   - Short description: "Pick which channels Pando should join."
+   - Command: `/synko-channels`
+   - Request URL: same as `/synko-demo` (your `<ngrok>/api/slack/commands`)
+   - Short description: "Pick which channels Synko should join."
 4. Save.
 
-After all that, in any channel type `/pando-channels` and Pando will open the picker modal. Or open the Pando App Home — there's now an "Add me to your channels" button.
+After all that, in any channel type `/synko-channels` and Synko will open the picker modal. Or open the Synko App Home — there's now an "Add me to your channels" button.
 
 ### If you already created the app before App Home was added
 
 The manifest now declares an **App Home** tab where the pet lives, plus an enabled **Messages tab**. If your existing Slack app was created from the older manifest, you'll see neither. Toggle them on manually:
 
-1. <https://api.slack.com/apps> → your Pando app → **App Home** in the left sidebar
+1. <https://api.slack.com/apps> → your Synko app → **App Home** in the left sidebar
 2. **Show Tabs** section:
    - Check **Home Tab** (gives you the pet's persistent home)
    - Check **Messages Tab**
    - Check **"Allow users to send Slash commands and messages from the messages tab"** (this is what re-enables the input bar in the DM)
-3. Save. Reload Slack. The Home tab appears next to Messages in the Pando DM.
+3. Save. Reload Slack. The Home tab appears next to Messages in the Synko DM.
 
 ---
 
@@ -147,18 +147,18 @@ The manifest now declares an **App Home** tab where the pet lives, plus an enabl
 
 Replays the same flow as the web demo, in real Slack DMs:
 
-`intro` → `analysis` (4 fake "Pando read your messages" observations) → `intentions` (multi-select checkboxes; first-picked is primary) → `hatching` (egg modal opens, then reveals the pet) → `coaching1` (DM with Mary) → `coaching2` (#marketing-launch post) → `reflection` (end-of-day digest) → `end` (with reset).
+`intro` → `analysis` (4 fake "Synko read your messages" observations) → `intentions` (multi-select checkboxes; first-picked is primary) → `hatching` (egg modal opens, then reveals the pet) → `coaching1` (DM with Mary) → `coaching2` (#marketing-launch post) → `reflection` (end-of-day digest) → `end` (with reset).
 
 Per-user state is held **in memory** in the Node process. It's lost on server restart. Fine for prototyping; replace with Vercel KV when deploying.
 
 ### Channel onboarding
 
-After install, the user picks which of their public channels Pando should join. Two ways to open the picker:
+After install, the user picks which of their public channels Synko should join. Two ways to open the picker:
 
-- Type `/pando-channels` in any channel
-- Click **Add me to your channels** on the Pando App Home tab
+- Type `/synko-channels` in any channel
+- Click **Add me to your channels** on the Synko App Home tab
 
-The picker shows up to 10 of the user's public channels with checkboxes. Channels matching naming patterns like `project-`, `eng-`, `marketing-`, `launch-`, `design-` (and channels with 3–25 members) are pre-checked as "likely project channel." On submit, Pando calls `conversations.join` for each selected channel and DMs the user a summary. Private channels still need a manual `/invite @Pando` (no API path around it). All visible to the channel members — Slack has no ghost mode.
+The picker shows up to 10 of the user's public channels with checkboxes. Channels matching naming patterns like `project-`, `eng-`, `marketing-`, `launch-`, `design-` (and channels with 3–25 members) are pre-checked as "likely project channel." On submit, Synko calls `conversations.join` for each selected channel and DMs the user a summary. Private channels still need a manual `/invite @Synko` (no API path around it). All visible to the channel members — Slack has no ghost mode.
 
 Heuristics live in `lib/slack/onboarding.ts` — adjust `PROJECT_PATTERNS` and `SKIP_PATTERNS` to retune.
 
@@ -168,7 +168,7 @@ Pet sprites (and the egg) are rendered as SVG by `app/api/sprites/[species]/rout
 
 - The **hatch reveal** opens as a popup modal in Slack — egg first, then a 2-second pause, then the pet image and intro.
 - **Coaching cards** and **reflection** show a small pet avatar inline next to the bot's name.
-- The **App Home tab** (next to "Messages" in the Pando DM) is the pet's persistent home — pet image at top, current intentions, latest reflection, and a "Start a new session" button.
+- The **App Home tab** (next to "Messages" in the Synko DM) is the pet's persistent home — pet image at top, current intentions, latest reflection, and a "Start a new session" button.
 
 ---
 

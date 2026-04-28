@@ -41,9 +41,9 @@ export function CoachingScene({ moment, pet, onSend }: Props) {
       messages={moment.history}
       composerOverlay={
         showFeedback ? (
-          <div className="pando-fade-in flex gap-3 items-start mb-2">
+          <div className="synko-fade-in flex gap-3 items-start mb-2">
             <div
-              className="rounded-md overflow-hidden p-0.5 pando-warm shrink-0"
+              className="rounded-md overflow-hidden p-0.5 synko-warm shrink-0"
               style={{ width: 36, height: 36 }}
             >
               <PixelPet pet={pet} size={32} animated={false} />
@@ -52,7 +52,7 @@ export function CoachingScene({ moment, pet, onSend }: Props) {
               <div className="text-xs text-stone-500 mb-1">
                 {COPY.coaching.petBubbleHint}
               </div>
-              <div className="pando-warm rounded-xl px-4 py-3 text-stone-800 leading-relaxed">
+              <div className="synko-warm rounded-xl px-4 py-3 text-stone-800 leading-relaxed">
                 {moment.petFeedback[pet.id]}
               </div>
             </div>

@@ -3,7 +3,7 @@
  * and post / update the appropriate Slack surface.
  *
  * Surfaces involved:
- *   - DM card  — one evolving message in the user's Pando DM. Most stage
+ *   - DM card  — one evolving message in the user's Synko DM. Most stage
  *                transitions update it in place via chat.update.
  *   - Modal    — used only for the hatch reveal. Opens with the egg, then
  *                updates after a 2s pause to show the pet.
@@ -99,7 +99,7 @@ async function updateModal(userId: string, view: View): Promise<void> {
   } catch (err) {
     // If the user dismissed the modal between open and update, Slack returns
     // not_found / view_expired — fine to swallow.
-    console.warn("[pando] views.update failed (modal likely closed):", err);
+    console.warn("[synko] views.update failed (modal likely closed):", err);
   }
 }
 
@@ -116,7 +116,7 @@ async function publishHome(userId: string): Promise<void> {
 /** Called from the slash command (or the App Home "start a new session" button). */
 export async function startFlow(userId: string): Promise<void> {
   resetState(userId);
-  await postCard(userId, introBlocks(), "Hi. I'm Pando.");
+  await postCard(userId, introBlocks(), "Hi. I'm Synko.");
   setState(userId, { stage: "intro" });
   // Refresh the home tab so it reflects the reset state on next open.
   await publishHome(userId).catch(() => {});
@@ -188,11 +188,11 @@ export async function joinPickedChannels(
   }
   if (failed.length > 0) {
     lines.push(
-      `Couldn't join ${failed.length} channel${failed.length === 1 ? "" : "s"} (probably private — try \`/invite @Pando\` in each).`,
+      `Couldn't join ${failed.length} channel${failed.length === 1 ? "" : "s"} (probably private — try \`/invite @Synko\` in each).`,
     );
   }
   lines.push(
-    "For private channels, type `/invite @Pando` in each. I can't auto-join those.",
+    "For private channels, type `/invite @Synko` in each. I can't auto-join those.",
   );
 
   await postPlain(userId, lines.join("\n\n"));
@@ -267,7 +267,7 @@ export async function handleAction(
         } catch (err) {
           // If the modal can't open (trigger expired etc.), fall back to
           // the DM-only experience. Don't block.
-          console.warn("[pando] openModal failed, falling back to DM only:", err);
+          console.warn("[synko] openModal failed, falling back to DM only:", err);
         }
       }
       await updateActiveCard(userId, hatchingPreBlocks(), "Something's hatching…");
@@ -339,7 +339,7 @@ export async function handleAction(
       try {
         await openChannelPicker(userId, triggerId);
       } catch (err) {
-        console.error("[pando] openChannelPicker failed:", err);
+        console.error("[synko] openChannelPicker failed:", err);
       }
       return;
     }

@@ -1,4 +1,4 @@
-// Core type definitions for Pando.
+// Core type definitions for Synko.
 
 export type SpeciesId = "lumio" | "mossle" | "wisp" | "sprout" | "ember";
 
@@ -6,7 +6,7 @@ export type SpeciesId = "lumio" | "mossle" | "wisp" | "sprout" | "ember";
  * The linear stages of the prototype flow.
  *
  * Iteration 2: replaced the diagnostic questionnaire with two lighter
- * touchpoints: a simulated "Pando read your last 30 days" analysis, then
+ * touchpoints: a simulated "Synko read your last 30 days" analysis, then
  * a multi-select intentions screen where the user picks what they want
  * help with. The pet hatches based on the user's primary (first-picked)
  * intention.
@@ -47,7 +47,7 @@ export type Intention = {
   speciesId: SpeciesId;
 };
 
-/** A fake stat or pattern Pando "noticed" while reading the user's Slack. */
+/** A fake stat or pattern Synko "noticed" while reading the user's Slack. */
 export type Observation = {
   text: string;
   kind: "positive" | "noticing" | "neutral";
@@ -55,7 +55,7 @@ export type Observation = {
 
 /** A Slack-style message in the simulated chat. */
 export type FauxMessage = {
-  /** Display name (e.g. "Mary Chen", "Pando", "you"). */
+  /** Display name (e.g. "Mary Chen", "Synko", "you"). */
   author: string;
   /** Visual avatar: letter for humans, "pet" to render the user's pet sprite. */
   avatar: { kind: "letter"; letter: string; color: string } | { kind: "pet" };
@@ -63,7 +63,7 @@ export type FauxMessage = {
   time: string;
   /** Message body. Markdown not parsed — keep it plain text. */
   body: string;
-  /** If true, render in the warm/magical "Pando" treatment. */
+  /** If true, render in the warm/magical "Synko" treatment. */
   fromPet?: boolean;
 };
 

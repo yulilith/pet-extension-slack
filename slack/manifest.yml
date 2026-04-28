@@ -1,4 +1,4 @@
-# Slack app manifest for Pando.
+# Slack app manifest for Synko.
 #
 # How to use this:
 #   1. Go to https://api.slack.com/apps and click "Create New App".
@@ -13,13 +13,13 @@
 # Shortcuts", and "Event Subscriptions" — or re-import this manifest.
 
 display_information:
-  name: Pando
+  name: Synko
   description: A quiet coaching pet for cross-functional collaboration.
   background_color: "#3f0e40"
 
 features:
   bot_user:
-    display_name: Pando
+    display_name: Synko
     always_online: true
 
   app_home:
@@ -28,12 +28,12 @@ features:
     messages_tab_read_only_enabled: false  # let users type in the DM
 
   slash_commands:
-    - command: /pando-demo
-      description: Walk through the Pando demo flow in DMs.
+    - command: /synko-demo
+      description: Walk through the Synko demo flow in DMs.
       url: https://elf-oversweet-crewman.ngrok-free.dev/api/slack/commands
       should_escape: false
-    - command: /pando-channels
-      description: Pick which channels Pando should join.
+    - command: /synko-channels
+      description: Pick which channels Synko should join.
       url: https://elf-oversweet-crewman.ngrok-free.dev/api/slack/commands
       should_escape: false
 
@@ -48,7 +48,7 @@ oauth_config:
       - channels:read       # list a user's public channels for the picker
       - channels:join       # auto-join the channels the user picks
       - channels:history    # read messages in joined channels (future analysis)
-      - groups:read         # see which private channels Pando is already in
+      - groups:read         # see which private channels Synko is already in
 
 settings:
   event_subscriptions:

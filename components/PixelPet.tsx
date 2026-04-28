@@ -25,10 +25,11 @@ export function PixelPet({ pet, size = 192, className = "", animated = true }: P
       alt={`${pet.name}, ${pet.tagline}`}
       width={size}
       height={size}
-      className={`inline-block ${animated ? "pando-pet-float" : ""} ${className}`}
+      className={`inline-block ${animated ? "synko-pet-float" : ""} ${className}`}
       style={{
         width: size,
-        height: size,
+        height: "auto",
+        maxHeight: size,
         objectFit: "contain",
         imageRendering: "pixelated",
       }}

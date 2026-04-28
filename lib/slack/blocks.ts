@@ -8,7 +8,7 @@
  *
  * Pet sprites are rendered server-side as SVG by /api/sprites/[species]/route.ts
  * and pulled into Slack via image blocks. URLs are absolute so Slack can fetch
- * them from the public internet (PANDO_PUBLIC_URL → ngrok or Vercel).
+ * them from the public internet (SYNKO_PUBLIC_URL → ngrok or Vercel).
  */
 
 import type { KnownBlock, View } from "@slack/web-api";
@@ -56,20 +56,20 @@ export function eggImageUrl(): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  STAGE BLOCKS — for messages in the Pando DM                               */
+/*  STAGE BLOCKS — for messages in the Synko DM                               */
 /* -------------------------------------------------------------------------- */
 
 export function introBlocks(): KnownBlock[] {
   return [
     {
       type: "header",
-      text: { type: "plain_text", text: "Hi. I'm Pando." },
+      text: { type: "plain_text", text: "Hi. I'm Synko." },
     },
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: COPY.intro.greeting.replace(/^Hi\. I'm Pando\.\n\n/, ""),
+        text: COPY.intro.greeting.replace(/^Hi\. I'm Synko\.\n\n/, ""),
       },
     },
     {
@@ -448,7 +448,7 @@ export function hatchingModalRevealView(pet: PetSpecies): View {
 /**
  * The pet's home tab, rendered for `views.publish`.
  * If the user hasn't hatched a pet yet, shows a welcome card pointing them
- * at /pando-demo. Otherwise shows pet identity + intentions + last reflection.
+ * at /synko-demo. Otherwise shows pet identity + intentions + last reflection.
  */
 export function homeView(state: SlackFlowState): View {
   const pet = state.speciesId ? PETS_BY_ID[state.speciesId] : null;
@@ -459,13 +459,13 @@ export function homeView(state: SlackFlowState): View {
       blocks: [
         {
           type: "header",
-          text: { type: "plain_text", text: "Hi. I'm Pando." },
+          text: { type: "plain_text", text: "Hi. I'm Synko." },
         },
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "I haven't met your pet yet. Type `/pando-demo` anywhere in this workspace to start.",
+            text: "I haven't met your pet yet. Type `/synko-demo` anywhere in this workspace to start.",
           },
         },
         {

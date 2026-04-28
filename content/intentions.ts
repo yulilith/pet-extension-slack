@@ -2,7 +2,7 @@
  * INTENTIONS, what the user can choose to work on.
  * ====================================================
  *
- * After the simulated "Pando read your last 30 days" analysis, the user
+ * After the simulated "Synko read your last 30 days" analysis, the user
  * picks one or more intentions. The first one they pick is treated as
  * their primary, and determines which pet hatches.
  *

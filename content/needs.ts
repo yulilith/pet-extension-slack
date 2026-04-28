@@ -19,7 +19,10 @@ export const PET_NEEDS: PetNeed[] = [
     id: "hungry",
     label: "Hungry",
     petLine: "I'm hungry. Send Chan a status update with the date up top.",
-    actionLabel: "Feed me with a status update",
+    actionLabel: "Feed me",
+    placeholder: "Write the status update to Chan...",
+    draftingLine:
+      "Put the date where Chan can see it. If someone owns the blocker, name them.",
     channel: { kind: "channel", name: "project-x" },
     setup:
       "Chan asked whether launch assets are still on track. You have one open legal review.",
@@ -37,8 +40,6 @@ export const PET_NEEDS: PetNeed[] = [
         body: "Who is the POC for xxx?",
       },
     ],
-    draft:
-      "Quick status: design assets are roughly 80% done. Legal review is still open, and I expect final exports by Friday 3 PM. Sarah, can you confirm legal review by Thursday noon?",
     afterSendLine:
       "Friday 3 PM gives Chan something to plan around. Naming Sarah turns the wait into an ask.",
   },
@@ -46,7 +47,10 @@ export const PET_NEEDS: PetNeed[] = [
     id: "lonely",
     label: "Lonely",
     petLine: "I'm lonely. Ask Priya the question you're working around.",
-    actionLabel: "Play with me by asking for help",
+    actionLabel: "Play with me",
+    placeholder: "Ask Priya for the help you actually need...",
+    draftingLine:
+      "Give Priya the two options. A real question is easier to answer than a vague check-in.",
     channel: {
       kind: "dm",
       name: "Priya Shah",
@@ -63,8 +67,6 @@ export const PET_NEEDS: PetNeed[] = [
         body: "send me the two options when you have them and I can sanity check",
       },
     ],
-    draft:
-      "Can you help me choose between the short onboarding flow and the guided one? I am leaning guided because it explains the team context, but I am not sure if that adds too much friction.",
     afterSendLine:
       "That is a real question. You gave Priya the two options instead of making her guess what help means.",
   },
@@ -72,7 +74,10 @@ export const PET_NEEDS: PetNeed[] = [
     id: "wobbly",
     label: "Wobbly",
     petLine: "I'm wobbly. Tell Mary the launch needs two more days.",
-    actionLabel: "Steady me with the firm version",
+    actionLabel: "Steady me",
+    placeholder: "Tell Mary where the launch stands...",
+    draftingLine:
+      "Say the timeline first. Then say why. Do not hide the ask inside extra context.",
     channel: {
       kind: "dm",
       name: "Mary Chen",
@@ -89,8 +94,6 @@ export const PET_NEEDS: PetNeed[] = [
         body: "hey! quick check, are we still on track for the launch friday?",
       },
     ],
-    draft:
-      "We need two more days on the launch. The auth migration is still riskier than we thought, and shipping Friday would mean cutting the rollback check. Can we move to Tuesday?",
     afterSendLine:
       "You did not hide the risk inside context. The ask is clear: move to Tuesday.",
   },
@@ -98,7 +101,10 @@ export const PET_NEEDS: PetNeed[] = [
     id: "restless",
     label: "Restless",
     petLine: "I'm restless. Pick the next step and name who owns it.",
-    actionLabel: "Settle me by unblocking the thread",
+    actionLabel: "Settle me",
+    placeholder: "Name the next step and owner...",
+    draftingLine:
+      "This thread needs an owner and a check point. Put both in the message.",
     channel: { kind: "channel", name: "project-x" },
     setup:
       "The channel has three loose updates and no owner for the announcement copy.",
@@ -116,8 +122,6 @@ export const PET_NEEDS: PetNeed[] = [
         body: "Just pushed new feature to prod",
       },
     ],
-    draft:
-      "Next step for launch copy: Devon owns the first announcement draft, due Thursday 2 PM. I will review for product accuracy after that.",
     afterSendLine:
       "Devon owns the draft, Thursday 2 PM is the check point. The thread has somewhere to go now.",
   },

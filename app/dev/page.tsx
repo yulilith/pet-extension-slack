@@ -10,7 +10,7 @@ import { PixelPet } from "@/components/PixelPet";
 export default function DevPreview() {
   return (
     <main className="min-h-screen p-10 bg-stone-50">
-      <h1 className="text-3xl font-semibold mb-2">Pando pet sprite preview</h1>
+      <h1 className="text-3xl font-semibold mb-2">Synko pet sprite preview</h1>
       <p className="text-sm text-stone-600 mb-10">
         All 5 species at three sizes. Edit{" "}
         <code className="px-1 bg-stone-200 rounded">public/sprites/</code> to iterate.
@@ -20,7 +20,7 @@ export default function DevPreview() {
         {PETS.map((pet) => (
           <div
             key={pet.id}
-            className="pando-warm rounded-2xl p-6 flex flex-col items-center text-center shadow-sm"
+            className="synko-warm rounded-2xl p-6 flex flex-col items-center text-center shadow-sm"
           >
             <div className="mb-4">
               <PixelPet pet={pet} size={192} />

@@ -1,5 +1,5 @@
 /**
- * THE FIVE PANDO PETS
+ * THE FIVE SYNKO PETS
  * ===================
  *
  * Each pet points to a PNG inside /public/sprites. Designers can replace those

@@ -97,7 +97,7 @@ export async function POST(req: Request): Promise<Response> {
         try {
           await joinPickedChannels(v.user.id, channelIds);
         } catch (err) {
-          console.error("[pando] joinPickedChannels failed:", err);
+          console.error("[synko] joinPickedChannels failed:", err);
         }
       });
     }
@@ -123,7 +123,7 @@ export async function POST(req: Request): Promise<Response> {
           ba.trigger_id,
         );
       } catch (err) {
-        console.error("[pando] handleAction failed:", err);
+        console.error("[synko] handleAction failed:", err);
       }
     });
 

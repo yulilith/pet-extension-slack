@@ -28,26 +28,26 @@ export function HatchScene({ pet, onDone }: Props) {
     <section className="flex-1 flex flex-col bg-white min-w-0">
       <header className="border-b border-stone-200 px-5 py-3">
         <div className="flex items-baseline gap-2">
-          <h2 className="font-semibold text-stone-900 text-base">Pando</h2>
+          <h2 className="font-semibold text-stone-900 text-base">Synko</h2>
         </div>
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
-        <div className="pando-warm rounded-3xl px-12 py-14 flex flex-col items-center max-w-xl w-full shadow-md">
+        <div className="synko-warm rounded-3xl px-12 py-14 flex flex-col items-center max-w-xl w-full shadow-md">
           {phase === "wiggle" && (
             <>
-              <Egg className="pando-egg-wiggle" />
+              <Egg className="synko-egg-wiggle" />
               <p className="mt-8 text-stone-700 italic">{COPY.hatching.pre}</p>
             </>
           )}
           {phase === "cracking" && (
             <>
-              <Egg className="pando-egg-crack" />
+              <Egg className="synko-egg-crack" />
               <p className="mt-8 text-stone-700 italic">{COPY.hatching.cracking}</p>
             </>
           )}
           {phase === "revealed" && (
-            <div className="pando-fade-in flex flex-col items-center">
+            <div className="synko-fade-in flex flex-col items-center">
               <PixelPet pet={pet} size={224} />
               <h2 className="text-3xl font-semibold mt-6 text-stone-900">
                 {pet.name}

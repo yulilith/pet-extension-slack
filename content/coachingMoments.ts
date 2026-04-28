@@ -1,21 +1,8 @@
 /**
- * THE TWO COACHING MOMENTS
- * ========================
+ * THE TWO COACHING MOMENTS — one DM with Mary, one channel post.
  *
- * Each moment is a scripted scene where the user is "drafting" a Slack
- * message to a cross-functional teammate. The user's draft is pre-filled
- * in the composer. The pet appears with feedback above the composer.
- *
- * Pet voice rules (must hold for every petFeedback line):
- *   - No em-dashes. Use periods or commas.
- *   - No "I noticed…" preface. Just state the observation.
- *   - No writerly metaphors ("rounds off your edges", "feels like a
- *     partnership"). No aphoristic closings ("that's how good decisions
- *     get made", "that combination is rare").
- *   - No corporate-speak ("synergy", "alignment", "stakeholders").
- *   - 1–3 sentences, short ones welcome.
- *   - Specific to *this draft*. Quote the actual phrase or name a move.
- *   - Don't perform warmth. Just be plain.
+ * Pet voice: 1-2 short sentences. Plain. Specific to the draft. No metaphor,
+ * no aphorisms, no "I noticed" preface.
  */
 
 import type { CoachingMoment } from "@/types";
@@ -29,8 +16,7 @@ const moment1: CoachingMoment = {
     avatarLetter: "M",
     avatarColor: "#7c3aed",
   },
-  setup:
-    "Mary (PM) just asked you for an update on the launch. You've drafted a reply.",
+  setup: "Mary asked if launch is still on track. You drafted a reply.",
   history: [
     {
       author: "Mary Chen",
@@ -42,15 +28,15 @@ const moment1: CoachingMoment = {
   draft: MOMENT_1_DRAFT,
   petFeedback: {
     lumio:
-      "You put the timeline up top instead of burying it. That's the part Mary needs. Then 'could probably figure it out though' walks the same sentence back.",
+      "Timeline is up top. Good. 'Could probably figure it out' walks it back. Drop that line.",
     mossle:
-      "You said why, not just what. Worth asking Mary one thing back: does she even need it Friday? You don't have to answer that for her.",
+      "You said why, not just what. Now ask Mary what she actually needs by Friday.",
     wisp:
-      "'We didn't fully scope the migration story' is the harder version of that sentence. Most people round it. Then 'could probably figure it out though' walks it back. Try the firmer version. She can take it.",
+      "The hard part is in there. Then 'could probably' walks it back. Drop it. Mary can take the firm version.",
     sprout:
-      "You told her what's hard. That's most of the work. Now ask what she needs from you to make a call. Right now you're trying to do her job and yours.",
+      "You told her what's hard. Now ask what she needs from you. You're trying to do her job too.",
     ember:
-      "Real timeline, named. Good. 'Could probably figure it out though if you need it sooner' is three softeners in one sentence. End with the question: 'What's the latest we can ship?'",
+      "Real timeline, named. 'Could probably figure it out though' is three softeners in one sentence. End with: 'What's the latest we can ship?'",
   },
 };
 
@@ -62,7 +48,7 @@ const moment2: CoachingMoment = {
     name: "marketing-launch",
   },
   setup:
-    "It's 4pm Wednesday. You're about to post a status update in #marketing-launch. Eng, PM, marketing, and legal will all see it.",
+    "4pm Wednesday. You're posting status in #marketing-launch. Eng, PM, marketing, legal will see it.",
   history: [
     {
       author: "Devon Park",
@@ -74,15 +60,15 @@ const moment2: CoachingMoment = {
   draft: MOMENT_2_DRAFT,
   petFeedback: {
     lumio:
-      "Status, date, scannable. People in this channel can read this in two seconds. '~80%' reads honest. The 'let me know if anyone has Qs' is a question to no one. Tag the one or two people whose answer actually matters.",
+      "Status, date, scannable. 'Let me know if anyone has Qs' is a question to no one. Tag who you actually need.",
     mossle:
-      "You said what's not done instead of pretending. Worth saying which sign-offs. Naming a person tends to unstick things faster than waiting for them to see a channel post.",
+      "You said what's not done. Now name which sign-offs and who. Tagging tends to unstick.",
     wisp:
-      "'~80%' reads honest. Most people would write 'almost done' even if it isn't. 'Waiting on a few sign-offs from legal' is also true and also vague. Naming who is the same move, scaled up.",
+      "'~80%' reads honest. Now name who you're waiting on. Same move, more useful.",
     sprout:
-      "Posting in the channel works. 'Let me know if anyone has Qs' is too open to actually catch anyone. Is there one person whose reply would unblock you? Pull them in by name.",
+      "Posting works. 'Let me know if anyone has Qs' won't catch anyone. Tag the one person who can unblock you.",
     ember:
-      "Status, date, caveat. Clean. Then 'let me know if anyone has Qs' which is a question pointed at no one and answered by no one. End with what you want: 'Sarah, can you unblock the legal review by Wed?'",
+      "Clean status. Then a question pointed at no one. End with: 'Sarah, can you unblock the legal review by Wed?'",
   },
 };
 

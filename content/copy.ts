@@ -5,47 +5,39 @@
 
 export const COPY = {
   intro: {
-    petName: "Pando",
-    /** First message the user sees in the Pando DM. */
+    petName: "Synko",
     greeting:
-      "Hi. I'm Pando.\n\nGive me a minute to read what you've been up to lately. Then we'll talk about where I can help.",
-    beginButton: "Let it read",
+      "Hi, I'm Synko.\n\nLet me read what you've been up to. One minute.",
+    beginButton: "Read it",
   },
   analysis: {
-    /** Lead-in shown above the observations list. */
     leadIn: "Reading your last 30 days…",
-    /** Sub-line that appears once observations finish revealing. */
-    handoff: "A few things I noticed.",
-    /** Prompt before the user advances to intentions. */
-    closing: "OK. Where do you want me to actually help?",
-    nextButton: "Tell it",
+    handoff: "Here's what I saw.",
+    closing: "What do you want help with?",
+    nextButton: "Pick",
   },
   intentions: {
     headline: "Pick what you want to work on.",
-    sub: "More than one is fine. The first one you pick is what I'll mostly be. I'll keep the others in mind.",
+    sub: "More than one is fine. The first one decides which pet hatches.",
     submitButton: "Hatch",
   },
   hatching: {
-    /** Shown while the egg is wiggling, before it cracks. */
     pre: "Something's hatching…",
-    /** Shown briefly after the crack, before the pet appears. */
     cracking: "…",
   },
   coaching: {
     setupLabel: "Scene",
     composerPlaceholder: "Message…",
     sendLabel: "Send",
-    petBubbleHint:
-      "Pando saw you drafting this. Just for you, not in the channel.",
+    petBubbleHint: "Just for you. Not in the channel.",
   },
   reflection: {
-    /** Header line above the affirmation message. */
-    leadIn: "End of day. A couple things.",
+    leadIn: "End of day. Here's what you fed me.",
   },
   end: {
-    headline: "That's the day.",
+    headline: "Goodnight.",
     body:
-      "You met your pet. They saw you draft a couple of messages. They had a few thoughts, quietly.\n\nIn the real product this would keep going for weeks. The pet getting to know your patterns, the team's tree growing alongside it.",
+      "You met your pet. They watched you write two messages.\n\nIn the real product, this keeps going. Pet learns your patterns. The team's tree grows.",
     resetButton: "Start over",
   },
 } as const;

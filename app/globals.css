@@ -1,77 +1,406 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 @import "tailwindcss";
 
 :root {
   --background: #f8f8f6;
   --foreground: #1d1c1d;
+
+  /* Slack chrome — calibrated against modern Slack desktop. */
   --slack-sidebar: #3f0e40;
-  --slack-sidebar-text: #ddd;
-  --slack-sidebar-active: #1164a3;
+  --slack-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --slack-sidebar-text: rgba(255, 255, 255, 0.78);
+  --slack-sidebar-text-dim: rgba(255, 255, 255, 0.5);
+  --slack-sidebar-active-bg: #1164a3;
+  --slack-sidebar-active-text: #ffffff;
+  --slack-search-bg: rgba(0, 0, 0, 0.18);
+  --slack-search-border: rgba(255, 255, 255, 0.14);
   --slack-divider: #e5e5e4;
   --slack-message-hover: #f8f8f8;
-  --pando-warm-bg: #fff8e8;
-  --pando-warm-edge: #f3e2b9;
+  --slack-text: #1d1c1d;
+  --slack-text-dim: #616061;
+  --slack-link: #1264a3;
+  --slack-green: #2bac76;
+
+  --synko-warm-bg: #fff8e8;
+  --synko-warm-edge: #f3e2b9;
+
+  /* Feeding-room palette — borrowed from meeting-pet-v2 */
+  --feed-bg:     #0E0A1A;
+  --feed-bg2:    #1A1228;
+  --feed-bg3:    #241A38;
+  --feed-border: #3A2858;
+  --feed-accent: #C060FF;
+  --feed-accent2:#FF8040;
+  --feed-text:   #E8D8FF;
+  --feed-dim:    #7860A8;
+  --feed-dark:   #3A2858;
+  --feed-green:  #40E080;
+  --feed-yellow: #FFD040;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-lato), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-slack: var(--font-lato), "Slack-Lato", "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-slack);
+  font-feature-settings: "kern" 1;
 }
 
 /* Pet idle float — gentle hover to make it feel alive without being busy. */
-@keyframes pando-pet-float-kf {
+@keyframes synko-pet-float-kf {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-3px); }
 }
-.pando-pet-float {
-  animation: pando-pet-float-kf 3.2s ease-in-out infinite;
+.synko-pet-float {
+  animation: synko-pet-float-kf 3.2s ease-in-out infinite;
   transform-origin: center;
 }
 
 /* Egg wiggle — used pre-hatch. */
-@keyframes pando-egg-wiggle-kf {
+@keyframes synko-egg-wiggle-kf {
   0%, 100%   { transform: rotate(0deg); }
   20%        { transform: rotate(-4deg); }
   40%        { transform: rotate(4deg); }
   60%        { transform: rotate(-3deg); }
   80%        { transform: rotate(3deg); }
 }
-.pando-egg-wiggle {
-  animation: pando-egg-wiggle-kf 1.6s ease-in-out infinite;
+.synko-egg-wiggle {
+  animation: synko-egg-wiggle-kf 1.6s ease-in-out infinite;
   transform-origin: 50% 80%;
 }
 
 /* Egg crack — single shake then settle. */
-@keyframes pando-egg-crack-kf {
+@keyframes synko-egg-crack-kf {
   0%   { transform: scale(1) rotate(0deg); }
   20%  { transform: scale(1.05) rotate(-6deg); }
   40%  { transform: scale(1.05) rotate(6deg); }
   60%  { transform: scale(1.08) rotate(-3deg); }
   100% { transform: scale(0.9)  rotate(0deg); opacity: 0; }
 }
-.pando-egg-crack {
-  animation: pando-egg-crack-kf 1.4s ease-in forwards;
+.synko-egg-crack {
+  animation: synko-egg-crack-kf 1.4s ease-in forwards;
 }
 
 /* Generic fade-in. */
-@keyframes pando-fade-in-kf {
+@keyframes synko-fade-in-kf {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.pando-fade-in {
-  animation: pando-fade-in-kf 0.4s ease-out both;
+.synko-fade-in {
+  animation: synko-fade-in-kf 0.4s ease-out both;
 }
 
 /* Pet card warm gradient — used as the "magical" visual treatment
    inside the otherwise-utilitarian Slack frame. */
-.pando-warm {
+.synko-warm {
   background: radial-gradient(120% 120% at 30% 0%, #fff8e8 0%, #fbeacd 70%, #f3d9a5 100%);
-  border: 1px solid var(--pando-warm-edge);
+  border: 1px solid var(--synko-warm-edge);
 }
+
+/* ─────────────────────── Real-Slack chrome utilities ─────────────────────── */
+
+/* Sidebar message row — Slack-style hover/active behavior. */
+.slack-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  color: var(--slack-sidebar-text);
+  font-size: 15px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.slack-row:hover { background: var(--slack-sidebar-hover); }
+.slack-row[data-active="true"] {
+  background: var(--slack-sidebar-active-bg);
+  color: var(--slack-sidebar-active-text);
+  font-weight: 700;
+}
+
+.slack-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px 4px;
+  font-size: 14px;
+  color: var(--slack-sidebar-text-dim);
+  user-select: none;
+}
+
+.slack-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 12px;
+  padding: 4px 8px;
+  background: var(--slack-search-bg);
+  border: 1px solid var(--slack-search-border);
+  border-radius: 6px;
+  color: var(--slack-sidebar-text);
+  font-size: 13px;
+}
+
+/* Channel header actions row (right side: pin, members, settings, search). */
+.slack-channel-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--slack-text-dim);
+}
+.slack-channel-actions button {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--slack-text-dim);
+}
+.slack-channel-actions button:hover {
+  background: #f6f6f6;
+  border-color: var(--slack-divider);
+}
+
+/* Message row — hover state + left rail timestamp reveal. */
+.slack-msg {
+  position: relative;
+  padding: 8px 20px 8px 72px;
+  min-height: 24px;
+}
+.slack-msg:hover { background: var(--slack-message-hover); }
+.slack-msg .slack-msg-time-rail {
+  position: absolute;
+  left: 16px;
+  top: 10px;
+  width: 40px;
+  font-size: 11px;
+  color: var(--slack-text-dim);
+  opacity: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.slack-msg:hover .slack-msg-time-rail { opacity: 1; }
+.slack-msg .slack-msg-avatar {
+  position: absolute;
+  left: 20px;
+  top: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Composer — outer container with toolbar / textarea / actions row. */
+.slack-composer {
+  margin: 4px 20px 20px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+.slack-composer:focus-within {
+  border-color: #969696;
+  box-shadow: 0 0 0 2px rgba(29, 155, 209, 0.15);
+}
+.slack-composer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-bottom: 1px solid #ececec;
+  color: var(--slack-text-dim);
+  font-size: 13px;
+}
+.slack-composer-toolbar button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--slack-text-dim);
+}
+.slack-composer-toolbar button:hover { background: #f0f0f0; color: var(--slack-text); }
+.slack-composer-toolbar .sep {
+  width: 1px;
+  height: 16px;
+  background: #ececec;
+  margin: 0 4px;
+}
+.slack-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 6px;
+  border-top: 1px solid transparent;
+}
+.slack-composer-actions .left,
+.slack-composer-actions .right {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.slack-send-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--slack-green);
+  color: white;
+  border: 0;
+  cursor: pointer;
+}
+.slack-send-btn[data-empty="true"] {
+  background: transparent;
+  color: var(--slack-text-dim);
+}
+.slack-send-btn[data-empty="true"]:hover { background: #f0f0f0; }
+
+/* Pet pulse indicator — used in B0 and ported to Annie's repo (A1). */
+@keyframes slack-pet-pulse-kf {
+  0%   { transform: scale(1); opacity: 0.85; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.slack-pet-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.85) 0%, rgba(255, 209, 102, 0) 70%);
+  animation: slack-pet-pulse-kf 1.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ─────────────────────────── Feeding-room utilities ─────────────────────── */
+/* Used only by /zoom, which mimics the Meeting Pet Zoom-extension UI. */
+
+.font-pixel {
+  font-family: "Press Start 2P", monospace;
+}
+
+.feed-shell {
+  background: var(--feed-bg);
+  color: var(--feed-text);
+  font-family: "Press Start 2P", monospace;
+  image-rendering: pixelated;
+}
+
+.feed-panel {
+  background: var(--feed-bg2);
+  border: 3px solid var(--feed-bg3);
+}
+
+.feed-card {
+  background: var(--feed-bg3);
+  border: 2px solid var(--feed-border);
+}
+
+/* Health bar shimmer — matches reference's repeating gradient overlay */
+.feed-health-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 4px,
+    rgba(255, 255, 255, 0.18) 4px,
+    rgba(255, 255, 255, 0.18) 6px
+  );
+}
+
+/* Treat fly-to-pet animation — applied to a treat when it's fed. */
+@keyframes treat-fly-kf {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  60%  { transform: translate(var(--fly-x, -120px), var(--fly-y, 60px)) scale(1.4) rotate(-12deg); opacity: 1; }
+  100% { transform: translate(var(--fly-x, -120px), var(--fly-y, 60px)) scale(0.2) rotate(20deg); opacity: 0; }
+}
+.treat-flying {
+  animation: treat-fly-kf 0.7s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+/* Pet bounce when fed */
+@keyframes pet-bounce-kf {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40%      { transform: translateY(-10px) scale(1.05); }
+  70%      { transform: translateY(2px) scale(0.98); }
+}
+.pet-bounce {
+  animation: pet-bounce-kf 0.5s ease-out;
+}
+
+/* Floating reaction text (e.g. "+8 HP", "yum!") */
+@keyframes reaction-float-kf {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
+}
+.reaction-float {
+  animation: reaction-float-kf 1.2s ease forwards;
+}
+
+/* Pixel-button base — chunky, with a dark drop shadow that pops */
+.btn-pixel {
+  font-family: "Press Start 2P", monospace;
+  background: var(--feed-accent);
+  color: #1A0030;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 3px 3px 0 #5A0090;
+  transition: transform 0.05s, box-shadow 0.05s;
+  font-size: 9px;
+}
+.btn-pixel:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #5A0090; }
+.btn-pixel:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #5A0090; }
+.btn-pixel.btn-pixel-ghost {
+  background: var(--feed-bg3);
+  color: var(--feed-dim);
+  box-shadow: 2px 2px 0 var(--feed-border);
+}
+.btn-pixel.btn-pixel-ghost:hover { color: var(--feed-accent); border-color: var(--feed-accent); }
+
+/* Scene background — soft starry void behind the pet */
+.feed-scene-bg {
+  background:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 85% 20%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(circle at 50% 100%, #2a1840 0%, #0A0818 70%);
+}
+
+/* Pixel-text rainbow for celebration title */
+@keyframes rainbow-text-kf {
+  0%   { color: var(--feed-accent); }
+  33%  { color: var(--feed-yellow); }
+  66%  { color: var(--feed-green); }
+  100% { color: var(--feed-accent); }
+}
+.rainbow-text {
+  animation: rainbow-text-kf 2s linear infinite;
+  text-shadow: 3px 3px 0 #5A0090;
+}
+
+/* Custom narrow scrollbar inside the feeding room */
+.feed-shell ::-webkit-scrollbar { width: 6px; height: 6px; }
+.feed-shell ::-webkit-scrollbar-track { background: var(--feed-bg2); }
+.feed-shell ::-webkit-scrollbar-thumb { background: var(--feed-dark); }

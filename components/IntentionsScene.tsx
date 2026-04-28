@@ -25,11 +25,11 @@ export function IntentionsScene({ onSubmit }: Props) {
   return (
     <section className="flex-1 flex flex-col bg-white min-w-0">
       <header className="border-b border-stone-200 px-5 py-3">
-        <h2 className="font-semibold text-stone-900 text-base">Pando</h2>
+        <h2 className="font-semibold text-stone-900 text-base">Synko</h2>
       </header>
 
       <div className="flex-1 overflow-y-auto px-8 py-10 flex flex-col items-center">
-        <div className="max-w-xl w-full pando-fade-in">
+        <div className="max-w-xl w-full synko-fade-in">
           <h3 className="text-2xl font-semibold text-stone-900 mb-2">
             {COPY.intentions.headline}
           </h3>

@@ -12,7 +12,7 @@ import { PETS_BY_ID } from "@/content/pets";
 import type { FauxMessage } from "@/types";
 
 type NeedStage = "intro" | "hatching" | "need" | "reflection";
-type NeedStatus = "needs-action" | "satisfied";
+type NeedStatus = "needs-action" | "drafting" | "satisfied";
 
 type State = {
   stage: NeedStage;
@@ -24,6 +24,7 @@ type State = {
 type Action =
   | { type: "begin" }
   | { type: "hatchDone" }
+  | { type: "openContext" }
   | { type: "updateDraft"; draft: string }
   | { type: "send" }
   | { type: "next" }
@@ -33,7 +34,7 @@ const INITIAL_STATE: State = {
   stage: "intro",
   needIndex: 0,
   status: "needs-action",
-  drafts: PET_NEEDS.map((need) => need.draft),
+  drafts: PET_NEEDS.map(() => ""),
 };
 
 const pet = PETS_BY_ID.wisp;
@@ -45,6 +46,9 @@ function reducer(state: State, action: Action): State {
 
     case "hatchDone":
       return { ...state, stage: "need" };
+
+    case "openContext":
+      return { ...state, status: "drafting" };
 
     case "updateDraft": {
       const drafts = [...state.drafts];
@@ -71,27 +75,32 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function activeSidebarId(stage: NeedStage, needIndex: number): string {
-  if (stage === "need") return PET_NEEDS[needIndex].channel.name;
-  if (stage === "intro") return "project-x";
-  return "pando";
+function activeSidebarId(
+  stage: NeedStage,
+  status: NeedStatus,
+  needIndex: number,
+): string {
+  if (stage === "need" && status !== "needs-action") {
+    return PET_NEEDS[needIndex].channel.name;
+  }
+  return "synko";
 }
 
 export default function NeedsPrototype() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const need = PET_NEEDS[state.needIndex];
-  const activeId = activeSidebarId(state.stage, state.needIndex);
+  const activeId = activeSidebarId(state.stage, state.status, state.needIndex);
 
   const sidebarItems: Parameters<typeof Sidebar>[0]["items"] = [
     { id: "announcements", label: "01-announcements", kind: "channel" },
     { id: "project-x", label: "project-x", kind: "channel" },
     { id: "talk-random", label: "03-talk random", kind: "channel" },
     {
-      id: "pando",
-      label: "Pando",
+      id: "synko",
+      label: "Synko",
       kind: "dm",
       avatar: { letter: "P", color: "#FFB347" },
-      isPando: true,
+      isPet: true,
     },
     {
       id: "Mary Chen",
@@ -118,18 +127,24 @@ export default function NeedsPrototype() {
       );
       break;
     case "need":
-      main = (
-        <NeedDemoScene
-          pet={pet}
-          need={need}
-          draft={state.drafts[state.needIndex]}
-          status={state.status}
-          onDraftChange={(draft) => dispatch({ type: "updateDraft", draft })}
-          onSend={() => dispatch({ type: "send" })}
-          onNext={() => dispatch({ type: "next" })}
-          isFinalNeed={state.needIndex === PET_NEEDS.length - 1}
-        />
-      );
+      main =
+        state.status === "needs-action" ? (
+          <NeedPromptScene
+            need={need}
+            onOpen={() => dispatch({ type: "openContext" })}
+          />
+        ) : (
+          <NeedDemoScene
+            pet={pet}
+            need={need}
+            draft={state.drafts[state.needIndex]}
+            status={state.status}
+            onDraftChange={(draft) => dispatch({ type: "updateDraft", draft })}
+            onSend={() => dispatch({ type: "send" })}
+            onNext={() => dispatch({ type: "next" })}
+            isFinalNeed={state.needIndex === PET_NEEDS.length - 1}
+          />
+        );
       break;
     case "reflection":
       main = <NeedsReflection onReset={() => dispatch({ type: "reset" })} />;
@@ -154,18 +169,18 @@ export default function NeedsPrototype() {
 function IntroScene({ onBegin }: { onBegin: () => void }) {
   const messages: FauxMessage[] = [
     {
-      author: "Mary Heer",
-      avatar: { kind: "letter", letter: "M", color: "#64748b" },
+      author: "Synko",
+      avatar: { kind: "letter", letter: "P", color: "#FFB347" },
       time: "10:27 AM",
       body: "Would you like to hatch your communication pet?",
+      fromPet: true,
     },
   ];
 
   return (
     <DMPanel
-      channelLabel="project-x"
-      isChannel
-      subline="A central place to organize meetups, coffee chats, and launch work"
+      channelLabel="Synko"
+      subline="Just you and Synko"
       messages={messages}
       composer={
         <div className="flex items-center gap-2">
@@ -180,6 +195,42 @@ function IntroScene({ onBegin }: { onBegin: () => void }) {
             disabled
           >
             Remind me later
+          </button>
+        </div>
+      }
+    />
+  );
+}
+
+function NeedPromptScene({
+  need,
+  onOpen,
+}: {
+  need: (typeof PET_NEEDS)[number];
+  onOpen: () => void;
+}) {
+  const messages: FauxMessage[] = [
+    {
+      author: pet.name,
+      avatar: { kind: "pet" },
+      time: "now",
+      body: need.petLine,
+      fromPet: true,
+    },
+  ];
+
+  return (
+    <DMPanel
+      channelLabel="Synko"
+      subline="Just you and Synko"
+      messages={messages}
+      composer={
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpen}
+            className="rounded border border-stone-300 px-3 py-1.5 text-sm hover:bg-stone-50"
+          >
+            {need.actionLabel}
           </button>
         </div>
       }
@@ -206,10 +257,10 @@ function NeedsReflection({ onReset }: { onReset: () => void }) {
   ];
 
   return (
-    <section className="relative flex-1 min-w-0">
+    <section className="relative flex flex-col flex-1 min-h-0 min-w-0">
       <DMPanel
-        channelLabel="Pando"
-        subline="Just you and Pando"
+        channelLabel="Synko"
+        subline="Just you and Synko"
         messages={messages}
         pet={pet}
         composer={
