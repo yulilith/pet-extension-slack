@@ -67,6 +67,10 @@ const TOMORROW_GOAL: Record<SpeciesId, { emoji: string; line: string }> = {
   wisp: { emoji: "🍎", line: "Say the firm thing once. No softener." },
   sprout: { emoji: "🍪", line: "Ask one specific person, not 'anyone.'" },
   ember: { emoji: "⭐", line: "End one message with a clear ask." },
+  river: { emoji: "🫐", line: "(placeholder)" },
+  "beaver-orange": { emoji: "🍪", line: "(placeholder)" },
+  "beaver-pink": { emoji: "🍎", line: "(placeholder)" },
+  "baby-capybara": { emoji: "🫐", line: "(placeholder)" },
 };
 
 /* -------------------------------------------------------------------------- */

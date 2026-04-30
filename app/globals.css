@@ -63,6 +63,53 @@ body {
   transform-origin: center;
 }
 
+/* Health-state animations — match the three Figma states.
+   Each state has its own bop amplitude + speed. */
+@keyframes synko-pet-bop-healthy-kf {
+  0%, 100% { transform: translateY(-2px); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes synko-pet-bop-normal-kf {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes synko-pet-bop-unhealthy-kf {
+  0%, 100% { transform: translateY(6px); }
+  50%      { transform: translateY(2px); }
+}
+
+.synko-pet-bop-healthy {
+  animation: synko-pet-bop-healthy-kf 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+.synko-pet-bop-normal {
+  animation: synko-pet-bop-normal-kf 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+.synko-pet-bop-unhealthy {
+  animation: synko-pet-bop-unhealthy-kf 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Healthy glow — soft drop-shadow halo in the pet's accent color.
+   Driven via CSS variable --pet-accent set by the consumer. */
+.synko-pet-glow {
+  filter: drop-shadow(0 0 8px var(--pet-accent, #ecb22e))
+          drop-shadow(0 0 14px var(--pet-accent, #ecb22e));
+}
+
+/* Pulse halo for the channel-floating pet when it has a pending suggestion. */
+@keyframes synko-channel-pulse {
+  0%   { transform: scale(0.7); opacity: 0.85; }
+  100% { transform: scale(1.7); opacity: 0;    }
+}
+
+/* Unhealthy dim — desaturated and faded. */
+.synko-pet-dim {
+  opacity: 0.6;
+  filter: grayscale(0.35) brightness(0.95);
+}
+
 /* Egg wiggle — used pre-hatch. */
 @keyframes synko-egg-wiggle-kf {
   0%, 100%   { transform: rotate(0deg); }
@@ -178,18 +225,11 @@ body {
   min-height: 24px;
 }
 .slack-msg:hover { background: var(--slack-message-hover); }
-.slack-msg .slack-msg-time-rail {
-  position: absolute;
-  left: 16px;
-  top: 10px;
-  width: 40px;
-  font-size: 11px;
-  color: var(--slack-text-dim);
-  opacity: 0;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.slack-msg:hover .slack-msg-time-rail { opacity: 1; }
+/* The left-rail timestamp is intentionally hidden — every message in the
+   unified demo always shows its avatar + inline timestamp, so the on-hover
+   rail would just overlap the avatar. Keeping the markup so callers don't
+   have to be edited. */
+.slack-msg .slack-msg-time-rail { display: none; }
 .slack-msg .slack-msg-avatar {
   position: absolute;
   left: 20px;
@@ -293,6 +333,11 @@ body {
 
 .font-pixel {
   font-family: "Press Start 2P", monospace;
+}
+
+/* Pixelify Sans — Synko's brand voice font, readable at body sizes. */
+.font-pixelify {
+  font-family: var(--font-pixelify), "Pixelify Sans", "Press Start 2P", monospace;
 }
 
 .feed-shell {

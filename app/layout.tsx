@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lato } from "next/font/google";
+import { Geist, Geist_Mono, Lato, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,6 +21,14 @@ const lato = Lato({
   subsets: ["latin"],
 });
 
+// Pixelify Sans — readable pixel-art font for the Synko brand voice
+// (pet messages, headline moments). Loaded at 400/600/700.
+const pixelifySans = Pixelify_Sans({
+  variable: "--font-pixelify",
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Synko",
   description: "A team communication pet for cross-departmental collaboration.",
@@ -34,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${pixelifySans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

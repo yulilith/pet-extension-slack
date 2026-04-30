@@ -27,4 +27,21 @@ export const REFLECTIONS: Record<SpeciesId, Reflection> = {
     affirmation: "Your message to Mary was direct and warm.",
     invitation: "Three 'just's. Drop them. Mary can take it.",
   },
+  // Stubs — refine when these species' coaching voices are finalized.
+  river: {
+    affirmation: "(placeholder)",
+    invitation: "(placeholder)",
+  },
+  "beaver-orange": {
+    affirmation: "(placeholder)",
+    invitation: "(placeholder)",
+  },
+  "beaver-pink": {
+    affirmation: "(placeholder)",
+    invitation: "(placeholder)",
+  },
+  "baby-capybara": {
+    affirmation: "(placeholder)",
+    invitation: "(placeholder)",
+  },
 };

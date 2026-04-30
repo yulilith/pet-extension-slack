@@ -21,10 +21,12 @@ import { SlackFrame } from "@/components/SlackFrame";
 import { Sidebar } from "@/components/Sidebar";
 import { PetHome, type Treat } from "@/components/PetHome";
 import { Modal } from "@/components/Modal";
-import { PixelPet } from "@/components/PixelPet";
+import { PixelPet, healthToState, type PetState } from "@/components/PixelPet";
 import { HatchScene } from "@/components/HatchScene";
 import { ScaffoldDemo } from "@/components/ScaffoldDemo";
 import { WrappedDemo } from "@/components/WrappedDemo";
+import { ChannelFloatingPet } from "@/components/ChannelFloatingPet";
+import { analyzeText } from "@/lib/analyzeText";
 import { PETS } from "@/content/pets";
 import {
   CHANNELS,
@@ -93,7 +95,23 @@ export default function DemoPage() {
   const [messages, setMessages] = useState<ChannelMessage[]>(HISTORY);
   const [composer, setComposer] = useState("");
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  // Text the user explicitly dismissed Synko's suggestion for — silences
+  // the floating pet until the composer text changes.
+  const [dismissedFor, setDismissedFor] = useState<string | null>(null);
+  // After the user *sends* a vague message, we keep the hit alive for a few
+  // seconds so the pet has time to visibly react ("hey — that one was vague").
+  const [postSendHit, setPostSendHit] = useState<ReturnType<typeof analyzeText>>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Live analysis of what the user is composing — falls back to the
+  // post-send hit when the composer is empty (typical right after sending).
+  const composerHit = useMemo(() => {
+    const t = composer.trim();
+    if (t.length === 0) return postSendHit;
+    if (t.length < 3) return null;
+    if (dismissedFor === t) return null;
+    return analyzeText(composer) ?? null;
+  }, [composer, dismissedFor, postSendHit]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -174,7 +192,17 @@ export default function DemoPage() {
       if (handled) return;
     }
     postMessage({ kind: "user", time: nowTime(), body: text });
+    // Keep Synko's reaction visible after the message is sent — even though
+    // the composer cleared. The hit auto-dismisses after ~12s if untouched.
+    const hit = analyzeText(text);
+    if (hit && dismissedFor !== text) {
+      setPostSendHit(hit);
+      window.setTimeout(() => {
+        setPostSendHit((prev) => (prev === hit ? null : prev));
+      }, 12000);
+    }
     setComposer("");
+    setDismissedFor(null);
   }
 
   // ── /zoom: simulate a meeting ──────────────────────────────────────────
@@ -241,8 +269,11 @@ export default function DemoPage() {
       time: nowTime(),
       body: (
         <div>
-          <div className="font-bold text-stone-900 mb-1">
-            Hi team — I'm {chosenPet.name}.
+          <div
+            className="font-pixelify text-stone-900 mb-2 font-bold"
+            style={{ fontSize: 18, lineHeight: 1.4 }}
+          >
+            Hi team — I'm {chosenPet.name}, a {chosenPet.kind}.
           </div>
           <p className="mb-2">{chosenPet.intro}</p>
           <p className="text-sm text-stone-700">
@@ -313,7 +344,7 @@ export default function DemoPage() {
     >
       <div className="flex flex-1 min-h-0">
         {/* Main channel column */}
-        <section className="flex-1 flex flex-col bg-white min-w-0 min-h-0">
+        <section className="flex-1 flex flex-col bg-white min-w-0 min-h-0 relative">
           {/* Channel header */}
           <header className="border-b border-stone-200 px-5 py-2.5 flex items-center gap-3 shrink-0">
             <div className="min-w-0 flex-1">
@@ -333,14 +364,32 @@ export default function DemoPage() {
             </div>
           </header>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto py-4">
+          {/* Messages — bottom padding reserves space so the floating pet
+               doesn't overlap the most-recent message. */}
+          <div className="flex-1 overflow-y-auto pt-4 pb-20">
             <ChannelDayDivider label="Today" />
             {messages.map((m, i) => (
-              <ChannelRow key={i} msg={m} pet={pet} />
+              <ChannelRow key={i} msg={m} pet={pet} petState={healthToState(health)} />
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Floating pet — sits above the composer, alerts on vague input. */}
+          <ChannelFloatingPet
+            pet={pet}
+            petState={healthToState(health)}
+            hit={composerHit}
+            onUseSuggestion={(s) => {
+              setComposer(s);
+              setDismissedFor(null);
+              setPostSendHit(null);
+            }}
+            onDismiss={() => {
+              const t = composer.trim();
+              if (t) setDismissedFor(t);
+              setPostSendHit(null);
+            }}
+          />
 
           {/* Composer */}
           <div className="px-5 pb-4 shrink-0">
@@ -450,7 +499,15 @@ function ChannelDayDivider({ label }: { label: string }) {
   );
 }
 
-function ChannelRow({ msg, pet }: { msg: ChannelMessage; pet: PetSpecies | null }) {
+function ChannelRow({
+  msg,
+  pet,
+  petState,
+}: {
+  msg: ChannelMessage;
+  pet: PetSpecies | null;
+  petState: PetState;
+}) {
   if (msg.kind === "system") {
     return (
       <div className="px-5 py-1 text-xs text-stone-500 italic">{msg.body}</div>
@@ -461,7 +518,7 @@ function ChannelRow({ msg, pet }: { msg: ChannelMessage; pet: PetSpecies | null 
     return (
       <div className="px-5 py-2">
         <div className="flex gap-3 items-start bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          <SynkoAvatar pet={pet} small />
+          <SynkoAvatar pet={pet} small petState={petState} />
           <div className="flex-1 text-sm text-stone-800">
             <div className="text-[11px] uppercase tracking-wider text-amber-700 font-bold mb-0.5">
               Only visible to you · from Synko
@@ -474,27 +531,34 @@ function ChannelRow({ msg, pet }: { msg: ChannelMessage; pet: PetSpecies | null 
   }
 
   if (msg.kind === "synko-public") {
+    const accent = pet?.accentColor ?? "#9aa0a6";
     return (
       <div className="slack-msg">
         <div className="slack-msg-time-rail">{msg.time}</div>
-        <div className="slack-msg-avatar synko-warm flex items-center justify-center">
+        <div className="slack-msg-avatar flex items-center justify-center bg-transparent">
           {pet ? (
-            <PixelPet pet={pet} size={32} animated={false} />
+            <PixelPet pet={pet} size={28} animated={false} state={petState} />
           ) : (
             <span className="text-xs font-bold text-stone-700">S</span>
           )}
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="font-bold text-stone-900">Synko</span>
+          <span
+            className="font-pixelify text-stone-900 font-bold"
+            style={{ fontSize: 17 }}
+          >
+            Synko
+          </span>
           <span className="inline-block px-1.5 py-0 text-[10px] rounded bg-stone-200 text-stone-600 font-medium">
             APP
           </span>
           <span className="text-xs text-stone-500">{msg.time}</span>
         </div>
-        <div className="text-stone-800 leading-relaxed mt-1">
-          <div className="synko-warm rounded-xl px-4 py-3 inline-block max-w-prose">
-            {msg.body}
-          </div>
+        <div
+          className="mt-1 max-w-prose pl-3 text-stone-800 leading-relaxed"
+          style={{ borderLeft: `3px solid ${accent}` }}
+        >
+          {msg.body}
         </div>
       </div>
     );
@@ -543,15 +607,23 @@ function ChannelRow({ msg, pet }: { msg: ChannelMessage; pet: PetSpecies | null 
   );
 }
 
-function SynkoAvatar({ pet, small }: { pet: PetSpecies | null; small?: boolean }) {
+function SynkoAvatar({
+  pet,
+  small,
+  petState,
+}: {
+  pet: PetSpecies | null;
+  small?: boolean;
+  petState?: PetState;
+}) {
   const size = small ? 24 : 36;
   return (
     <div
-      className="rounded-md overflow-hidden synko-warm flex items-center justify-center shrink-0"
+      className="rounded-md overflow-hidden flex items-center justify-center shrink-0"
       style={{ width: size, height: size }}
     >
       {pet ? (
-        <PixelPet pet={pet} size={size - 4} animated={false} />
+        <PixelPet pet={pet} size={size - 4} animated={false} state={petState} />
       ) : (
         <span className="text-xs font-bold text-stone-800">S</span>
       )}
@@ -618,38 +690,31 @@ function Caret() {
 
 /* ─────────────────────────── /init flow inside modal ─────────────────────── */
 
-function pickSpeciesFromText(seedText: string): PetSpecies {
-  let hash = 0;
-  for (let i = 0; i < seedText.length; i++) hash = (hash * 31 + seedText.charCodeAt(i)) | 0;
-  return PETS[Math.abs(hash) % PETS.length];
-}
-
 function InitFlow({
   onComplete,
 }: {
   onComplete: (pet: PetSpecies, projectName: string) => void;
 }) {
-  const [step, setStep] = useState<"leader" | "hatching">("leader");
+  const [step, setStep] = useState<"leader" | "choose" | "hatching">("leader");
   const [project, setProject] = useState({
     name: PROJECT.codename,
     goal: PROJECT.goal,
     context: PROJECT.context,
     deadline: PROJECT.deadline,
   });
-  const [chosenPet, setChosenPet] = useState<PetSpecies | null>(null);
+  const [selectedSpecies, setSelectedSpecies] = useState<PetSpecies | null>(null);
+  const [petName, setPetName] = useState("");
 
-  function submitLeader() {
-    const seed = `${project.name}|${project.goal}|${project.context}`;
-    const p = pickSpeciesFromText(seed);
-    setChosenPet(p);
-    setStep("hatching");
-  }
+  /** Final pet object: chosen species + custom name. */
+  const finalPet: PetSpecies | null = selectedSpecies
+    ? { ...selectedSpecies, name: petName.trim() || selectedSpecies.name }
+    : null;
 
   if (step === "leader") {
     return (
       <div className="px-6 py-6">
         <div className="text-[11px] uppercase tracking-wider text-stone-500 font-bold">
-          Step 1 of 2 · project leader
+          Step 1 of 3 · project leader
         </div>
         <h1 className="text-xl font-bold text-stone-900 mt-1">Set up your project</h1>
         <p className="text-stone-600 text-sm mt-1 mb-4">
@@ -690,21 +755,113 @@ function InitFlow({
           </Field>
         </div>
         <button
-          onClick={submitLeader}
+          onClick={() => setStep("choose")}
           disabled={!project.name.trim()}
           className="mt-5 px-5 py-2.5 rounded-md bg-stone-900 text-white text-sm font-semibold hover:bg-stone-700 disabled:bg-stone-300"
         >
-          Hatch the pet →
+          Choose your pet →
         </button>
       </div>
     );
   }
 
-  // hatching
+  if (step === "choose") {
+    return (
+      <div className="px-6 py-6">
+        <div className="text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+          Step 2 of 3 · pick &amp; name
+        </div>
+        <h1 className="text-xl font-bold text-stone-900 mt-1">
+          Choose your team's pet
+        </h1>
+        <p className="text-stone-600 text-sm mt-1 mb-4">
+          Pick the one your team will raise together. You can name it whatever
+          you want.
+        </p>
+
+        {/* Species grid */}
+        <div className="grid grid-cols-6 gap-2 mb-5">
+          {PETS.map((p) => {
+            const isSelected = selectedSpecies?.id === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setSelectedSpecies(p)}
+                data-active={isSelected}
+                className="flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors data-[active=true]:bg-stone-50 data-[active=false]:border-stone-200 hover:border-stone-400"
+                style={{ borderColor: isSelected ? p.accentColor : undefined }}
+              >
+                <div style={{ width: 56, height: 56 }}>
+                  <PixelPet
+                    pet={p}
+                    size={56}
+                    animated={isSelected}
+                    state={isSelected ? "healthy" : "normal"}
+                  />
+                </div>
+                <div className="text-[11px] font-semibold text-stone-700 text-center">
+                  {p.name}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected pet preview + custom name input */}
+        {selectedSpecies && (
+          <div className="border-t border-stone-200 pt-4">
+            <div className="flex items-start gap-4">
+              <div
+                className="rounded-lg p-2"
+                style={{ background: `${selectedSpecies.accentColor}15` }}
+              >
+                <PixelPet pet={selectedSpecies} size={72} animated state="healthy" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] uppercase tracking-wider text-stone-500 font-bold mb-1">
+                  Coaching focus
+                </div>
+                <p className="text-sm text-stone-700 mb-3">
+                  {selectedSpecies.coachingFocus}
+                </p>
+                <Field label="Give your pet a name">
+                  <input
+                    value={petName}
+                    onChange={(e) => setPetName(e.target.value)}
+                    placeholder="e.g. Pomi, Bubbles, Mango"
+                    maxLength={20}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-md outline-none focus:border-stone-500 font-pixelify text-base"
+                  />
+                </Field>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between gap-2 mt-5">
+          <button
+            onClick={() => setStep("leader")}
+            className="px-4 py-2.5 rounded-md text-sm font-semibold text-stone-700 hover:bg-stone-100"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => setStep("hatching")}
+            disabled={!selectedSpecies || !petName.trim()}
+            className="px-5 py-2.5 rounded-md bg-stone-900 text-white text-sm font-semibold hover:bg-stone-700 disabled:bg-stone-300"
+          >
+            Hatch the pet →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // hatching (step 3 of 3)
   return (
     <HatchScene
-      pet={chosenPet!}
-      onDone={() => onComplete(chosenPet!, project.name)}
+      pet={finalPet!}
+      onDone={() => onComplete(finalPet!, project.name)}
     />
   );
 }

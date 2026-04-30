@@ -1,6 +1,15 @@
 // Core type definitions for Synko.
 
-export type SpeciesId = "lumio" | "mossle" | "wisp" | "sprout" | "ember";
+export type SpeciesId =
+  | "lumio"
+  | "mossle"
+  | "wisp"
+  | "sprout"
+  | "ember"
+  | "river"
+  | "beaver-orange"
+  | "beaver-pink"
+  | "baby-capybara";
 
 /**
  * The linear stages of the prototype flow.
@@ -104,12 +113,22 @@ export type PetSpecies = {
   /** One-line vibe descriptor used in dev preview / hatch flavor. */
   tagline: string;
   /**
+   * The species "kind" — used to compose the intro line when the user has
+   * given the pet a custom name. e.g. "yellow cat", "brown dog".
+   */
+  kind: string;
+  /**
    * Internal note for designers — what this pet quietly coaches the user on.
    * Not shown to the user verbatim.
    */
   coachingFocus: string;
-  /** 1-3 sentences spoken on hatch. */
+  /**
+   * Personality line spoken right after the auto-generated greeting on hatch.
+   * Should NOT include "Hi, I'm X." — that's prepended dynamically.
+   */
   intro: string;
+  /** Hex color used as the brand accent for this pet (e.g. left edge of Synko's app messages). */
+  accentColor: string;
 };
 
 export type NeedId = "hungry" | "lonely" | "wobbly" | "restless";

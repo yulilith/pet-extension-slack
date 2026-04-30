@@ -37,6 +37,10 @@ const moment1: CoachingMoment = {
       "You told her what's hard. Now ask what she needs from you. You're trying to do her job too.",
     ember:
       "Real timeline, named. 'Could probably figure it out though' is three softeners in one sentence. End with: 'What's the latest we can ship?'",
+    river: "(placeholder)",
+    "beaver-orange": "(placeholder)",
+    "beaver-pink": "(placeholder)",
+    "baby-capybara": "(placeholder)",
   },
 };
 
@@ -69,6 +73,10 @@ const moment2: CoachingMoment = {
       "Posting works. 'Let me know if anyone has Qs' won't catch anyone. Tag the one person who can unblock you.",
     ember:
       "Clean status. Then a question pointed at no one. End with: 'Sarah, can you unblock the legal review by Wed?'",
+    river: "(placeholder)",
+    "beaver-orange": "(placeholder)",
+    "beaver-pink": "(placeholder)",
+    "baby-capybara": "(placeholder)",
   },
 };
 

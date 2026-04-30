@@ -49,12 +49,14 @@ export function HatchScene({ pet, onDone }: Props) {
           {phase === "revealed" && (
             <div className="synko-fade-in flex flex-col items-center">
               <PixelPet pet={pet} size={224} />
-              <h2 className="text-3xl font-semibold mt-6 text-stone-900">
+              <h2
+                className="font-pixelify font-bold mt-6 text-stone-900"
+                style={{ fontSize: 32 }}
+              >
                 {pet.name}
               </h2>
-              <p className="text-stone-700 italic mt-1">{pet.tagline}</p>
-              <p className="mt-6 text-stone-800 max-w-md text-center leading-relaxed">
-                {pet.intro}
+              <p className="mt-4 text-stone-800 max-w-md text-center leading-relaxed">
+                Hi, I'm {pet.name}, a {pet.kind}. {pet.intro}
               </p>
               <button
                 onClick={onDone}
